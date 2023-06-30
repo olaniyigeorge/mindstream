@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title> Login </title>
+{% endblock%}
+
+
+
+{% block body %}
+
+    <!-- 
+        Form to collect Email and Password 
+    -->
+
+    <form action="{% url 'accounts:signup' %}" method="POST">
+        {% csrftoken %}
+
+        <!-- 
+            for field in editprofile form:
+                field
+        -->
+
+    </form>
+
+    
+{% endblock%}

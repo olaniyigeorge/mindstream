@@ -1,0 +1,47 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}
+    <title> MFA 2  </title>
+{% endblock%}
+
+
+
+{% block body %}
+
+    <header>
+        <h2>
+            Auth/MFA Level Two
+        </h2>
+    </header>
+
+    <!-- 
+        Recovery Question and Answer form to test the inherent  
+        factor of the authentication system
+    -->
+
+    <form action="{% url 'accounts:mfa %}" method="POST">
+        {% csrftoken %}
+
+        <div>
+            <label for="question"> Recovery Question </label>
+            <input type="text" name="recovery_question" placeholder="Recovery Question">
+        </div>
+        
+        <div>
+            <label for="recovery_answer"> Recovery Answer </label>
+            <input type="text" name="recovery_answer">
+        </div>
+
+        <div>
+            <input type="hidden" name="level" value="2">
+        </div>
+
+        <div>
+            <input type="submit" value="Verify">
+        </div>
+    
+    </form>
+
+    
+    
+{% endblock%}

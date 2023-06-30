@@ -3,10 +3,23 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
-@login_required(login_url="users/login")
+
+
+
 def index(request):
 
     return render(request, 'journal/index.html')
+
+
+
+@login_required(login_url="accounts/login")
+def home(request):
+    entries = ["This is my first entry", 
+               "I'm here again for the second time to write down my thoughts",
+                "This is my third entry"]
+    
+    return render(request, 'journal/home.html', {'entries': entries})
+
 
 
 def day(request):

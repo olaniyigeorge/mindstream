@@ -1,0 +1,39 @@
+{% extends 'journal/base.html' %}
+
+{% block title %}
+    <title> Login </title>
+{% endblock%}
+
+
+
+{% block body %}
+
+    <h3>
+        Provide your email and password for authentication
+    </h3>
+
+    <!-- 
+        Form to collect Email and Password 
+    -->
+
+    <form action="{% url 'accounts:login' %}" method="post">
+        {% csrf_token %}
+        <div>
+            <label for="email"> E-mail Address </label>
+            <input type="email" name="email" placeholder="E-mail Address">
+        </div>
+        
+        <div>
+            <label for="password"> Password </label>
+            <input type="password" name="password">
+        </div>
+        
+        <div>
+            <input type="submit" value="Login">
+        </div>
+    </form>
+
+    <p> Don't have an account? <a href="{% url 'accounts:signup' %}"> Register </a> </p> 
+
+    
+{% endblock %}

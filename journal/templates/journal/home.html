@@ -1,0 +1,38 @@
+{% extends 'journal/base.html' %}
+
+{% block title %}
+    My journal
+{% endblock%}
+
+
+
+{% block body %}
+
+    <!-- 
+        A list of entries from the past week is displayed starting with the most recent
+    -->
+    <h2>
+        This page is for authenticated users.
+
+        A list of entries from the past week is displayed starting with the most recent
+    </h2>
+
+    <ul>
+
+        {% for entry in entries %}
+            <li>
+                {{ entry }}
+            </li>
+        {% endfor %}
+
+    </ul>
+    
+
+    <!--
+        Large(call to action) button to add entry
+    -->
+    <button>
+        Add Entry Button
+    </button>
+
+{% endblock%}

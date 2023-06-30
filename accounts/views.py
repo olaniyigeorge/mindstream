@@ -1,0 +1,391 @@
+from django.shortcuts import render
+
+from .models import User, UserProfile
+from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate, login, logout
+from django.urls import reverse
+from .forms import SignUpForm, SetUpMFAForm
+
+# Create your views here.
+
+
+def profile(request):
+
+    # returns a user profile page
+    return render(request, 'accounts/profile.html')
+    
+
+
+def signup(request):
+    '''
+    Serve the signup form then get redirected to setmfa 
+    page to fill in the details required to set up MFA
+    '''
+    if request.method == 'POST':
+        # Get the values of the SignUp form in order
+        form = SignUpForm(request.POST)
+        
+        if form.is_valid():
+            #Do stuff if the form is valid
+            
+            # Saves a new user object from the  form's data 
+            user = form.save()
+
+            # Save user  --- THIS LINE CREATES A USER, WHICH TRRIGGERS THE SIGNAL TO CREATE A
+            #                USERPROFILE(with all fields set to the default value) FOR THE USER
+            user.save()
+
+            # Try(in a case where fr some reason the user isnt created) to get the user ID
+            try:
+                submitted_email = form.cleaned_data.get('email')
+                thisuser = User.objects.get(email = submitted_email)
+            except:
+                raise ValueError("Couldn't get user")
+            
+
+            # Save user id in session with key 'tupk(this user primary key)'
+            request.sessions['tupk'] = thisuser.pk
+
+            # Redirect to mfaform page to fill in the mfa details(question, answer and phone number)
+            return HttpResponseRedirect(reverse("accounts:setmfa"))
+
+        else:
+            return render(request, "accounts/signup.html", {
+                                    'form': form,
+                                    'message': 'Form not valid'})
+
+    # Serve the specially build signup form in forms.py
+    signupform = SignUpForm()
+    return render(request, 'accounts/signup.html', {'form': form})
+
+def setmfa(request):
+    """
+    Serves the setmfa form to get the details needed to setup MFA. 
+    On POST, sets up MFA after verifying the provided details(especially phone numner) 
+    by saving this details in the user profile
+    """
+    pk = request.session['tupk']
+
+    if request.method == "POST":
+        # Bind the submitted data to a SetUPMFAForm instance by populating 
+        ## it with the data. This is done for validation purposes
+        setupmfaform = SetUpMFAForm(request.POST)
+
+        if setupmfaform.is_valid():
+            # Get user
+            user = User.objects.get(pk=pk)
+            # Get UserPofile
+            profile = UserProfile.objects.get(user=user)
+
+            # Get the MFA data from the submitted form data
+            question = setupmfaform.cleaned_data['recovery_question']
+            answer = setupmfaform.cleaned_data['recovery_answer']
+            phone_number = setupmfaform.cleaned_data['phone_number']
+
+            # Set these data for the user
+            profile.recovery_question = question
+            profile.recovery_answer = answer
+            profile.phone_number = phone_number
+
+            # Save profile
+            profile.save()
+            
+            # Try to log the user in 
+            # TODO "Try" because, i dont have access to email and password anymore 
+            # so im not sure authentication will be successful
+            login(request, user)
+        
+            # Redirect to the home page
+            return HttpResponseRedirect(reverse("journal:home"))
+        
+        else:
+            # Users are redirected back to restart the MFA setup process
+            # TODO For now, the above is the normal behavior. But in a situation where the user doesn't 
+            # TODO ...... the save primary key in their sessions (anymore), what should happen? 
+            
+            return HttpResponseRedirect(reverse("account:setmfa"))
+        
+
+    # GET: Serves the setmfa form
+    setupmfaform = SetUpMFAForm()
+    return render(request, 'account/setmfa.html', {'form':setupmfaform})
+
+def login_view(request):
+    # Redirects to mfa view passing in 1 as an argument to 
+    # route it to the first level of the MFA system
+    return HttpResponseRedirect(reverse("accounts:mfa", args=(1)))
+
+def mfa(request, level):
+    '''
+    Implementation for the three levels of authentication.
+    
+    LEVEL 1: User is served the Email/Password form
+    LEVEL 2: User is served the Recovery question to provide an answer
+    LEVEL 3: User is served a simple form to provide the OTP sent to their phone number upon passing level
+    
+    '''
+
+    if request.method == "POST":
+        # Check current MFA security level
+        level = request.POST['level']
+
+        if level == "1":
+            # Get returned email and password
+            email = request.POST["email"]
+            password = request.POST["password"]
+
+            # Check returned email and password
+            user = authenticate(request, email=email, password=password)
+
+            # If the user email and password checks out
+            if user:
+                # Get user and save the user's id in session 
+                user = User.objects.get(email = email)
+                request.session['tupk'] == user.pk
+
+                # Redirect to the second level of mfa
+                return HttpResponseRedirect(reverse("accounts:mfa", args=(2)))
+            else:
+                # If password  doesn't check out, redirect to login view which restarts the MFA process
+                # TODO Delete pk from sessions first
+                return HttpResponseRedirect(reverse("accounts:login_views"))
+        
+        if level == "2":
+            '''
+            Check if the recovery answer is correct  ---> 
+            if correct, redirect to the third level
+            '''
+            # Get returned recovery question's answer 
+            answer = request.POST["recovery_answer"]
+            
+            # Get user_id from sessions
+            pk = request.sessions['tupk']
+
+            # Use pk to get user, userprofile and user's recovery answer in extension
+            user = User.objects.get(pk=pk)
+            userprofile = UserProfile.objects.get(user=user)
+
+            # Check if provided answer from form matches the user's recovery answer
+            if userprofile.recovery_answer == answer:
+                request.session['tupk'] == user.pk
+
+                # Redirect to the third/last level of mfa
+                return HttpResponseRedirect(reverse("accounts:mfa", args=(3)))
+            else:
+                # If answer doesn't checkout, redirect to login view which restarts the MFA process
+                # TODO Delete pk from sessions first
+                return HttpResponseRedirect(reverse("accounts:login_views"))
+            
+        if level == "3":
+            '''
+            Check if the OTP is correct  ---> if correct, 
+            log user in and redirect to journal's home page
+            '''
+            # Get returned recovery question's answer 
+            otp_code = request.POST["otp"]
+            
+            # Get user_id from sessions and user it to get user
+            pk = request.sessions['tupk']
+            user = User.objects.get(pk=pk)
+
+
+            # TODO Get code somehow
+            current_user_code = ""
+
+
+            # Check if code is correct 
+            if otp_code == current_user_code:
+                # OTP is correct
+                # Log user in 
+                login(request, user) 
+                # Redirect to journal home page
+                return HttpResponseRedirect(reverse("journal:home"))
+            else:
+                # If OTP doesn't checkout, redirect to login view which restarts the MFA process
+                # TODO Delete pk from sessions first
+                return HttpResponseRedirect(reverse("accounts:login_views"))
+
+    if level == 1:
+        # Serve the Email/Password form
+        return render(request, "accounts/mfaone.html")
+    if level == 2:
+        # Serve the Recovery question form 
+        return render(request, "accounts/mfatwo.html") 
+    if level == 3:
+        ''' Send an OTP to the user's phone number then serve 
+        a simple form to get the OTP back'''
+
+        #TODO Send OTP
+        # print(OTP)
+        return render(request, "accounts/mfathree.html")
+
+
+
+
+def login(request):
+    '''
+    On GET: Serve the login form to get the email and password
+    On POST: Check if the credentials are correct, redirect to MFA/2 page'''
+    pass
+
+
+
+
+
+
+def mfa(request, level):
+    pass
+
+""" def editprofile(request):
+    '''
+    Serve the editprofile form on GET 
+    Updates the user profile on POST
+    '''
+    
+    # Try to get pk for session. redirect to login page 
+    try:
+        pk = request.session['pk']
+    except:
+        raise ValueError("You can't be on this page")
+        # TODO return HttpResponseRedirect(reverse('accounts:login'))
+
+    # if request.session[pk] is true, render the editprofile button
+
+    if pk:
+        return render(request, 'accounts/editprofile.html', {pk})
+
+ """
+
+
+
+# def profile(request):
+
+#     # The user profile page
+    
+#     return render(request, "user_service/profile.html")
+
+
+# def signup(request):
+#     '''
+
+#     On Get
+#     Serves email/password form 
+    
+#     On Post
+#     if form is valid:
+#         create user and set is verified to false by default
+#         redirect to login page populate the email field 
+    
+#     '''
+
+#     pass
+
+# def edit_mfa_layers(request):
+#     '''
+
+#     On Get
+#     Render mfa-form page
+    
+#     On Post
+#     if form is valid:
+#         edit/set recovery_question, answer and OTP Device
+#         set user.is_verified to True
+#         redirect to login page populate the email field 
+    
+#     '''
+
+#     pass
+
+
+# def login(request):
+#     '''
+
+#     On Get
+#     Serves email/password form 
+    
+#     On post
+#     ....if user.email not in database:
+#         return render signup page and populate the email field with the provided email
+
+#     ....if not authenticate(user):
+#             redirect login with invalid password error
+
+#     ....if not user.is_verified:
+#             redirect to recovery_question and otp device form page
+
+#     ....if not user.mfa:
+#             login(user)
+#             redirect home
+
+#         else:
+#             authenticate(user)
+#             get(user_id)
+#             render email recovery page with user_id in session
+#             ...request.session['user_id'] = user_id
+        
+#     '''
+
+#     pass
+
+
+# def confirm_recovery_question(request):
+#     '''
+#     if not request.session.get('user_id):
+#         redirect to login page with 
+
+#     userprofile =userprofile(user=user_id)
+    
+
+
+#     ///
+
+#     On Get
+#     recovery_question =userprofile(user=user_id).recovery_question
+#     ....return render recovery question with question in context
+    
+#     On post
+
+#     ....if request.POST[answer] = userprofile.recovery.answer
+#             redirect to OTP page with user_id in session
+#             ...request.session['user_id'] = user_id
+
+#     ....else:
+#             return render mfa error page with "MFA failed" message
+
+#     '''
+#     pass
+
+
+
+# def confirm_otp(request):
+#     '''
+#     if not request.session.get('otp_user_id):
+#         redirect to login page
+
+#     userprofile =userprofile(user=user_id)
+
+
+
+#     ///
+
+#     On Get
+#     ....Display recovery question
+#     ....Serve input field for form
+
+    
+#     On post
+
+#     TODO How to send OTP to phone number
+    
+#     ....if request.POST[OTP] checks out:
+#             login(user)
+#             redirect to journal home
+
+#     ....else:
+#             return render mfa error page with "MFA failed" message
+
+#     '''
+#     pass
+
+# def logout(request):
+#     pass

@@ -1,0 +1,42 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}
+    <title> MFA 3  </title>
+{% endblock%}
+
+
+
+{% block body %}
+
+    <header>
+        <h2>
+            Auth/MFA Level Three
+        </h2>
+    </header>
+
+    <!-- 
+        OTP form to test the possession factor
+        of the authentication system
+    -->
+
+    <form action="{% url 'accounts:mfa %}" method="POST">
+        {% csrftoken %}
+
+        <div>
+            <label for="otp"> One Time Password(OTP) </label>
+            <input type="text" name="otp" placeholder="OTP code">
+        </div>
+        
+        <div>
+            <input type="hidden" name="level" value="3">
+        </div>
+
+        <div>
+            <input type="submit" value="Verify">
+        </div>
+    
+    </form>
+
+    
+    
+{% endblock%}

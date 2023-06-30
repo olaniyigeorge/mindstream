@@ -1,26 +1,24 @@
-{% extends 'base.html' %}
+{% extends 'journal/base.html' %}
 
 {% block title %}
-    <title> My journal </title>
+    MindStream
 {% endblock%}
 
 
 
 {% block body %}
 
-    <!-- 
-        A list of entries from the past week is displayed starting with the most recent
-    -->
+    
+
     <h2>
-        A list of entries from the past week is displayed starting with the most recent
+        This is the homepage for non-authenticated users. 
+        It will be used for advertisements, promotions and marketing
     </h2>
 
+    <div class="nav">
 
-    <!--
-        Large(call to action) button to add entry
-    -->
-    <button>
-        Add Entry Button
-    </button>
+        <a href="{% urls 'accounts:login_view %}"> Login </a>
+
+    </div>
 
 {% endblock%}

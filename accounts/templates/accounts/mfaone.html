@@ -1,0 +1,47 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}
+    <title> MFA 1  </title>
+{% endblock%}
+
+
+
+{% block body %}
+
+    <header>
+        <h2>
+            Auth/MFA Level One
+        </h2>
+    </header>
+
+    <!-- 
+        E-mail and password form to test the knowledge 
+        factor of the authentication system
+    -->
+
+    <form action="{% url 'accounts:mfa %}" method="POST">
+        {% csrftoken %}
+
+        <div>
+            <label for="email"> E-mail Address </label>
+            <input type="email" name="email" placeholder="E-mail Address">
+        </div>
+        
+        <div>
+            <label for="password"> Password </label>
+            <input type="password" name="password">
+        </div>
+
+        <div>
+            <input type="hidden" name="level" value="1">
+        </div>
+
+        <div>
+            <input type="submit" value="Login">
+        </div>
+    
+    </form>
+
+    
+    
+{% endblock%}
