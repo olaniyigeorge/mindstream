@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'journal/base.html' %}
 
 {% block title %}
     <title> Set MFA Details  </title>
@@ -20,7 +20,7 @@
     {% endif %}
 
     <div>
-        <form action="{% url 'accounts:signup' %}" method="post">
+        <form action="{% url 'accounts:setmfa' %}" method="post">
             {% csrf_token %}
             
             {% for field in form %}

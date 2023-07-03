@@ -11,11 +11,6 @@
     </head>
 
     <body>
-        {% if user.is_authenticated %}
-
-            <a href="{% url 'accounts:logout' %}"> Log out </a>
-
-        {% endif %}
 
         {% block body %}
 

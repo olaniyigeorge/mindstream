@@ -19,8 +19,8 @@
         factor of the authentication system
     -->
 
-    <form action="{% url 'accounts:mfa %}" method="POST">
-        {% csrftoken %}
+    <form action="{% url 'accounts:mfa' 1 %}" method="POST">
+        {% csrf_token %}
 
         <div>
             <label for="email"> E-mail Address </label>

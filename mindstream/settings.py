@@ -42,10 +42,11 @@ INSTALLED_APPS = [
 
     # Internal Apps
     'journal',
-    'accounts'
+    'accounts',
 
     # Third party apps
-    'phonenumber_field'     # To handle getting and validating phone numbers  
+    'phonenumber_field'     #  This 3rd party app provides a phone number field in models and 
+                            ## handles getting and validating phone numbers  
 
 ]
 

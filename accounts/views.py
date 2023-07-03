@@ -1,20 +1,19 @@
 from django.shortcuts import render
 
-from .models import User, UserProfile
+from .models import User, UserProfile, OTPCode
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .forms import SignUpForm, SetUpMFAForm
+import random
 
 # Create your views here.
 
 
 def profile(request):
+    '''  Returns the authenticated user's profile page  '''
 
-    # returns a user profile page
-    return render(request, 'accounts/profile.html')
-    
-
+    return render(request, "accounts/profile.html")
 
 def signup(request):
     '''
@@ -44,7 +43,7 @@ def signup(request):
             
 
             # Save user id in session with key 'tupk(this user primary key)'
-            request.sessions['tupk'] = thisuser.pk
+            request.session['tupk'] = thisuser.pk
 
             # Redirect to mfaform page to fill in the mfa details(question, answer and phone number)
             return HttpResponseRedirect(reverse("accounts:setmfa"))
@@ -56,7 +55,7 @@ def signup(request):
 
     # Serve the specially build signup form in forms.py
     signupform = SignUpForm()
-    return render(request, 'accounts/signup.html', {'form': form})
+    return render(request, 'accounts/signup.html', {'form': signupform})
 
 def setmfa(request):
     """
@@ -91,8 +90,8 @@ def setmfa(request):
             profile.save()
             
             # Try to log the user in 
-            # TODO "Try" because, i dont have access to email and password anymore 
-            # so im not sure authentication will be successful
+            # TODO "Try" because, i dont have access to email and password anymore and I'm not  
+            #  calling authenticate(user) so I'm not sure authentication will be successful
             login(request, user)
         
             # Redirect to the home page
@@ -101,19 +100,19 @@ def setmfa(request):
         else:
             # Users are redirected back to restart the MFA setup process
             # TODO For now, the above is the normal behavior. But in a situation where the user doesn't 
-            # TODO ...... the save primary key in their sessions (anymore), what should happen? 
+            # TODO ...... the save primary key in their session (anymore), what should happen? 
             
-            return HttpResponseRedirect(reverse("account:setmfa"))
+            return HttpResponseRedirect(reverse("accounts:setmfa"))
         
 
     # GET: Serves the setmfa form
     setupmfaform = SetUpMFAForm()
-    return render(request, 'account/setmfa.html', {'form':setupmfaform})
+    return render(request, 'accounts/setmfa.html', {'form':setupmfaform})
 
 def login_view(request):
     # Redirects to mfa view passing in 1 as an argument to 
     # route it to the first level of the MFA system
-    return HttpResponseRedirect(reverse("accounts:mfa", args=(1)))
+    return HttpResponseRedirect(reverse("accounts:mfa", args=(1,),))
 
 def mfa(request, level):
     '''
@@ -141,10 +140,10 @@ def mfa(request, level):
             if user:
                 # Get user and save the user's id in session 
                 user = User.objects.get(email = email)
-                request.session['tupk'] == user.pk
+                request.session['tupk'] = user.pk
 
                 # Redirect to the second level of mfa
-                return HttpResponseRedirect(reverse("accounts:mfa", args=(2)))
+                return HttpResponseRedirect(reverse("accounts:mfa", args=(2,),))
             else:
                 # If password  doesn't check out, redirect to login view which restarts the MFA process
                 # TODO Delete pk from sessions first
@@ -158,8 +157,8 @@ def mfa(request, level):
             # Get returned recovery question's answer 
             answer = request.POST["recovery_answer"]
             
-            # Get user_id from sessions
-            pk = request.sessions['tupk']
+            # Get user_id from session
+            pk = request.session['tupk']
 
             # Use pk to get user, userprofile and user's recovery answer in extension
             user = User.objects.get(pk=pk)
@@ -167,12 +166,13 @@ def mfa(request, level):
 
             # Check if provided answer from form matches the user's recovery answer
             if userprofile.recovery_answer == answer:
-                request.session['tupk'] == user.pk
+                request.session['tupk'] = user.pk
 
                 # Redirect to the third/last level of mfa
-                return HttpResponseRedirect(reverse("accounts:mfa", args=(3)))
+                return HttpResponseRedirect(reverse("accounts:mfa", args=(3,)))
+            
+            # If answer doesn't checkout, redirect to login view which restarts the MFA process
             else:
-                # If answer doesn't checkout, redirect to login view which restarts the MFA process
                 # TODO Delete pk from sessions first
                 return HttpResponseRedirect(reverse("accounts:login_views"))
             
@@ -184,26 +184,32 @@ def mfa(request, level):
             # Get returned recovery question's answer 
             otp_code = request.POST["otp"]
             
-            # Get user_id from sessions and user it to get user
-            pk = request.sessions['tupk']
+            # Get user_id from session and user it to get user
+            pk = request.session['tupk']
             user = User.objects.get(pk=pk)
 
+            # Check if there exists an OTPcode in the database with this code and this user
+            if OTPCode.objects.filter(code=otp_code, owner=user).exists():
+                # If the code exists for this user...
 
-            # TODO Get code somehow
-            current_user_code = ""
+                #TODO Delete pk from sessions
 
+                # Log user in
+                login(request, user)
 
-            # Check if code is correct 
-            if otp_code == current_user_code:
-                # OTP is correct
-                # Log user in 
-                login(request, user) 
-                # Redirect to journal home page
+                #Redirect to home page
                 return HttpResponseRedirect(reverse("journal:home"))
+
             else:
-                # If OTP doesn't checkout, redirect to login view which restarts the MFA process
-                # TODO Delete pk from sessions first
-                return HttpResponseRedirect(reverse("accounts:login_views"))
+                # If the code provided doesn't checkout(is'nt in the database)
+
+                #TODO Delete pk from 
+
+                # Redirect user to the login_view to restart the MFA 
+                # process from level one
+                return HttpResponseRedirect(reverse("account:login_view"))
+
+            
 
     if level == 1:
         # Serve the Email/Password form
@@ -212,29 +218,44 @@ def mfa(request, level):
         # Serve the Recovery question form 
         return render(request, "accounts/mfatwo.html") 
     if level == 3:
-        ''' Send an OTP to the user's phone number then serve 
-        a simple form to get the OTP back'''
+        ''' 
+        Send an OTP to the user's phone number then serve 
+        a simple form to get the OTP back
+        '''
+        
+        # Generate a random 6 digit code 
+        code = random.randint(100000, 999999)
 
-        #TODO Send OTP
-        # print(OTP)
+        # Get the user for the session
+        user_id = request.session['tupk']
+        user = User.objects.get(pk=user_id)
+
+        # Create a OTPcode with this user as the user as the owner and save in database
+        otpcode = OTPCode.objects.create(code=code, owner=user)
+        otpcode.save()
+
+        # TODO Send OTPcode to user's phone number
+        # For now(before integrating Twillo we'll print the code
+        print(code)
+
+
+        # Serve form to get the OTPcode from the user 
         return render(request, "accounts/mfathree.html")
 
-
-
-
-def login(request):
+def logout(request):
     '''
-    On GET: Serve the login form to get the email and password
-    On POST: Check if the credentials are correct, redirect to MFA/2 page'''
-    pass
+    Log authenticated user out and redirect to journal index page
+    '''
+    # Log user out
+    #TODO Read up on how the logout function works
+    
+    logout(request)
+
+    # Redirect to journal index page
+    return HttpResponseRedirect(reverse("journal:index"))
 
 
 
-
-
-
-def mfa(request, level):
-    pass
 
 """ def editprofile(request):
     '''
@@ -256,136 +277,3 @@ def mfa(request, level):
 
  """
 
-
-
-# def profile(request):
-
-#     # The user profile page
-    
-#     return render(request, "user_service/profile.html")
-
-
-# def signup(request):
-#     '''
-
-#     On Get
-#     Serves email/password form 
-    
-#     On Post
-#     if form is valid:
-#         create user and set is verified to false by default
-#         redirect to login page populate the email field 
-    
-#     '''
-
-#     pass
-
-# def edit_mfa_layers(request):
-#     '''
-
-#     On Get
-#     Render mfa-form page
-    
-#     On Post
-#     if form is valid:
-#         edit/set recovery_question, answer and OTP Device
-#         set user.is_verified to True
-#         redirect to login page populate the email field 
-    
-#     '''
-
-#     pass
-
-
-# def login(request):
-#     '''
-
-#     On Get
-#     Serves email/password form 
-    
-#     On post
-#     ....if user.email not in database:
-#         return render signup page and populate the email field with the provided email
-
-#     ....if not authenticate(user):
-#             redirect login with invalid password error
-
-#     ....if not user.is_verified:
-#             redirect to recovery_question and otp device form page
-
-#     ....if not user.mfa:
-#             login(user)
-#             redirect home
-
-#         else:
-#             authenticate(user)
-#             get(user_id)
-#             render email recovery page with user_id in session
-#             ...request.session['user_id'] = user_id
-        
-#     '''
-
-#     pass
-
-
-# def confirm_recovery_question(request):
-#     '''
-#     if not request.session.get('user_id):
-#         redirect to login page with 
-
-#     userprofile =userprofile(user=user_id)
-    
-
-
-#     ///
-
-#     On Get
-#     recovery_question =userprofile(user=user_id).recovery_question
-#     ....return render recovery question with question in context
-    
-#     On post
-
-#     ....if request.POST[answer] = userprofile.recovery.answer
-#             redirect to OTP page with user_id in session
-#             ...request.session['user_id'] = user_id
-
-#     ....else:
-#             return render mfa error page with "MFA failed" message
-
-#     '''
-#     pass
-
-
-
-# def confirm_otp(request):
-#     '''
-#     if not request.session.get('otp_user_id):
-#         redirect to login page
-
-#     userprofile =userprofile(user=user_id)
-
-
-
-#     ///
-
-#     On Get
-#     ....Display recovery question
-#     ....Serve input field for form
-
-    
-#     On post
-
-#     TODO How to send OTP to phone number
-    
-#     ....if request.POST[OTP] checks out:
-#             login(user)
-#             redirect to journal home
-
-#     ....else:
-#             return render mfa error page with "MFA failed" message
-
-#     '''
-#     pass
-
-# def logout(request):
-#     pass

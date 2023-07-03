@@ -44,6 +44,12 @@ class UserProfile(models.Model):
     recovery_answer = models.CharField(max_length=30)
 
 
+class OTPCode(models.Model):
+    # TODO Read up on how ong it takes to guess/break a four digit code vs a six digit code
+    code = models.CharField(max_length=6, null=False, blank=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
 
 
 
@@ -52,4 +58,4 @@ class UserProfile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance)
-    instance.userprofile.save()
+    instance.profile.save()

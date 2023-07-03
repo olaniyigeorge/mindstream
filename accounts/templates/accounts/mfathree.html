@@ -19,8 +19,8 @@
         of the authentication system
     -->
 
-    <form action="{% url 'accounts:mfa %}" method="POST">
-        {% csrftoken %}
+    <form action="{% url 'accounts:mfa' 3 %}" method="POST">
+        {% csrf_token %}
 
         <div>
             <label for="otp"> One Time Password(OTP) </label>
