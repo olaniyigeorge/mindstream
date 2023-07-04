@@ -242,7 +242,7 @@ def mfa(request, level):
         # Serve form to get the OTPcode from the user 
         return render(request, "accounts/mfathree.html")
 
-def logout(request):
+def logout_view(request):
     '''
     Log authenticated user out and redirect to journal index page
     '''
