@@ -8,20 +8,22 @@ from accounts.models import UserProfile
 class Entry(models.Model):
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="user_entries" )
     text = models.TextField()
-    date = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.title}"
     
     def get_date(self):
         # Return the entry date in the format "June 22nd, 2023"
-        pass
+        return f"{str(self.created_at.date)}"
 
     def get_time(self):
         # Return the entry time in the format "20:25:54"
-        pass
+        return f"{str(self.created_at.time)}"
     
     
+
 
 class Tag(models.Model):
     text = models.CharField(max_length=30)
@@ -40,3 +42,4 @@ class Tag(models.Model):
             entries.append(entry)
 
         return entries
+
