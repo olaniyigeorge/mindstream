@@ -1,6 +1,10 @@
 from django.shortcuts import render
 
+from .models import Entry
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .forms import AddEntryForm
 # Create your views here.
 
 
@@ -18,7 +22,40 @@ def home(request):
                "I'm here again for the second time to write down my thoughts",
                 "This is my third entry"]
     
+    db_entries = Entry.objects.all()
+
+    entries += db_entries
+    
     return render(request, 'journal/home.html', {'entries': entries})
+
+def create_entry(request):
+    '''
+    On GET: This view returns the entry form page on get
+    On POST: calls the validate_entry(entry), if valid, calls parse_entry(entry) then save entry.
+
+    '''
+    if request.method == "POST":
+        submitted_form = AddEntryForm(request.POST)
+
+        if submitted_form.is_valid():
+            # Get authenticated user
+            user = request.user
+
+            # Create and save entry
+            entry_text = submitted_form.cleaned_data["entry_text"]
+
+            # Create entry. Not specifiying the date with make the date datetime.datetime.now() so far t
+            new_entry = Entry.objects.create(author=user, text=entry_text)
+
+            # Redirect back to home
+        else:
+            # If form sn't valid, redirect back to the create entry page and 
+            # prepopulate the form with the invalid entry
+            return HttpResponseRedirect(reverse("journal:create_entry"))
+        
+        pass
+    add_entry_form = AddEntryForm()
+    return render(request, "journal/create_entry.html", {'form': add_entry_form})
 
 
 
@@ -37,14 +74,6 @@ def archive(request, filter_on='months'):
     '''
     return render(request, 'journal/archive_filter.html')
 
-
-def create_entry(request):
-    '''
-    On GET: This view returns the entry form page on get
-    On POST: calls the validate_entry(entry), if valid, calls parse_entry(entry) then save entry.
-
-    '''
-    pass
 
 
 def delete(request, entry_id):
