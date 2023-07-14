@@ -9,35 +9,47 @@
 
 
 
-{% block body %}
+{% block content %}
 
     {% if message %}
         {{ message }}
     {% endif %}
 
+    <div class="flex justify-center items-center font-medium py-7">
 
-    <form action="{% url 'accounts:signup' %}" method="post">
-        {% csrf_token %}
-        
-        {% for field in form %}
-            <p>
-                {{ field.label_tag}} <br>
-                {{ field }}
+        <form class="shadow shadow-mindpurple rounded-lg w-2/3 justify-center" action="{% url 'accounts:signup' %}" method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="mb-7">
 
-                {% if field.help_text %}
-                    {{ field.help_text }}
-                {% endif %}
+                    <label class="flex justify-center items-center text-lg text-mindtextmetal"> {{ field.label_tag}} </label>  
 
-
-                {% for error in field.errors %}
-                    {{ error }}
-                {% endfor %}
-
+                    <div class="mt-1 flex justify-center items-center w-full bg-red-200">
+                        <p class="focus:ring-0 focus:outline-0 focus:border-none"> {{ field }}   </p>
+                    </div>   
                 
-            </p>
-        {% endfor %}
-        <input type="submit" value="Sign Up">
-    </form>
+                </div>
+
+                <!-- 
+                    <p>
+                        {% if field.help_text %}
+                            {{ field.help_text }}
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}                
+                    </p>
+                -->
+            {% endfor %}
+            <div class="my-3 flex justify-center items-center w-full bg-red-200">
+                <input class="rounded-md bg-mindpurple w-1/3 p-2 text-white hover:font-bold  hover:ring hover:ring-mindpurple" type="submit" value="Sign Up">
+            </div>
+            
+        </form>
+    </div>
+        
 
 
 {% endblock %}
