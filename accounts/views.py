@@ -147,7 +147,7 @@ def mfa(request, level):
             else:
                 # If password  doesn't check out, redirect to login view which restarts the MFA process
                 # TODO Delete pk from sessions first
-                return HttpResponseRedirect(reverse("accounts:login_views"))
+                return HttpResponseRedirect(reverse("accounts:login_view"))
         
         if level == "2":
             '''
@@ -174,7 +174,7 @@ def mfa(request, level):
             # If answer doesn't checkout, redirect to login view which restarts the MFA process
             else:
                 # TODO Delete pk from sessions first
-                return HttpResponseRedirect(reverse("accounts:login_views"))
+                return HttpResponseRedirect(reverse("accounts:login_view"))
             
         if level == "3":
             '''
@@ -215,8 +215,18 @@ def mfa(request, level):
         # Serve the Email/Password form
         return render(request, "accounts/mfaone.html")
     if level == 2:
-        # Serve the Recovery question form 
-        return render(request, "accounts/mfatwo.html") 
+        '''
+        Serve the Recovery question form 
+        '''
+        # Get user's profile from primary key in session
+        pk = request.session["tupk"] 
+        user = User.objects.get(pk=pk)
+        profile = UserProfile.objects.get(user=user)
+        # Get the user's recovery question 
+        recovery_question = profile.recovery_question
+
+        # Serve the form to get the answer passing in the question
+        return render(request, "accounts/mfatwo.html", {'question': recovery_question}) 
     if level == 3:
         ''' 
         Send an OTP to the user's phone number then serve 
