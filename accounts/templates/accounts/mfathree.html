@@ -1,42 +1,46 @@
-{% extends 'accounts/base.html' %}
+{% extends 'journal/base.html' %}
 
 {% block title %}
-    <title> MFA 3  </title>
+     MFA 3  
 {% endblock%}
 
 
 
-{% block body %}
-
-    <header>
-        <h2>
+{% block content %}
+<div class="flex justify-center items-center mt-5 ">
+    <div class="space-y-5 w-2/3 shadow shadow-mindpurple p-4 m-5 rounded-lg">
+        <h2 class="bg-red-200 p-2 mx-auto underline w-2/3 text-center text-lg sm:text-2xl font-medium rounded-lg text-mindpurple font-[poppins]">
             Auth/MFA Level Three
         </h2>
-    </header>
 
-    <!-- 
-        OTP form to test the possession factor
-        of the authentication system
-    -->
+        <hr class="border-mindpurple"> 
+        <!-- 
+                OTP form to test the possession factor
+                of the authentication system
+            -->
 
-    <form action="{% url 'accounts:mfa' 3 %}" method="POST">
-        {% csrf_token %}
+        <form class=" border-mindpurple space-y-4 " action="{% url 'accounts:mfa' 3 %}" method="POST">
+            {% csrf_token %}
 
-        <div>
-            <label for="otp"> One Time Password(OTP) </label>
-            <input type="text" name="otp" placeholder="OTP code">
-        </div>
+            <div class="mx-auto space-y-1 w-2/3">
+                <label class="mx-auto text-mindtextmetal font-medium" for="otp"> One Time Password(OTP) </label>
+                <input class="w-full p-2 shadow-md rounded-lg focus:outline-mindpurple" type="text" name="otp" placeholder="OTP code">
+            </div>
+            
+            <div>
+                <input type="hidden" name="level" value="3">
+            </div>
+
+            <div class="mx-auto  w-2/3">
+                <input class="w-full p-2 rounded-lg shadow-lg bg-mindpurple font-medium text-white hover:outline-2 hover:outline-mindpurple hover:font-bold" type="submit" value="Verify">
+            </div>
         
-        <div>
-            <input type="hidden" name="level" value="3">
-        </div>
+        </form>
 
-        <div>
-            <input type="submit" value="Verify">
-        </div>
+    </div>
+</div>
     
-    </form>
-
+    
     
     
 {% endblock%}
