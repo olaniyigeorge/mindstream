@@ -6,33 +6,45 @@
 
 
 
-{% block body %}
+{% block content %}
 
-    <!-- 
-        A list of entries from the past week is displayed starting with the most recent
-    -->
-    <h2>
-        This page is for authenticated users.
+    <div class="flex mx-4 mt-4 ">
+        <div class="w-1/12  flex justify-center items-center border border-mindpurple text-mindpurple">Prev</div>
 
-        A list of entries from the past week is displayed starting with the most recent
-    </h2>
+        <div class="w-10/12 px-2 border border-mindpurple ">
+            <div class="flex justify-between text-mindpurple font-medium py-4 px-2 bg-mindpurple">
+                <div class="rounded-lg bg-white p-2">Date</div>
+                
+                <div class="rounded-lg bg-white p-2">
+                    <a href="{% url 'journal:create_entry' %}"> Add Entry </a>
+                </div>
+            </div>
+            
+            <div class="px-2 mb-60 mt-5">
+                
+                <!-- 
+                    A list of entries from the past week is displayed starting with the most recent
+                -->
+                
 
-    <ul>
+                <ul>
 
-        {% for entry in entries %}
-            <li>
-                {{ entry }}
-            </li>
-        {% endfor %}
+                    {% for entry in entries %}
+                        <li>
+                            {{ entry }}
+                        </li>
+                    {% endfor %}
 
-    </ul>
+                </ul>
+            </div>
+        </div>
+
+        <div class="w-1/12 flex justify-center items-center border border-mindpurple text-mindpurple">Next</div>
+    
+    </div>
+    
     
 
-    <!--
-        Large(call to action) button to add entry
-    -->
-    <button>
-        Add Entry Button
-    </button>
+    
 
 {% endblock%}
