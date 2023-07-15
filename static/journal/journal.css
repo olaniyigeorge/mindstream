@@ -793,6 +793,10 @@ video {
   font-family: poppins;
 }
 
+.font-\[\] {
+  font-family: ;
+}
+
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -851,6 +855,10 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.text-\[poppins\] {
+  color: poppins;
+}
+
 .underline {
   text-decoration-line: underline;
 }
@@ -905,6 +913,11 @@ video {
 .hover\:ring-mindpurple:hover {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(112 1 112 / var(--tw-ring-opacity));
+}
+
+.focus\:bg-mindcream:focus {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 219 / var(--tw-bg-opacity));
 }
 
 .focus\:outline-2:focus {
