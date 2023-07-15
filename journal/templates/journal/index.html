@@ -10,40 +10,40 @@
 
 {% block content %}
 
-    <div class="mt-6 space-y-4 sm:space-y-0 sm:flex py-8 font-[poppins]">
-        <div class="tracking-wide leading-relaxed px-5 w-full sm:w-1/2 text-2xl font-[poppins] text-mindtextmetal">
+    <div class="mt-3 sm:mt-6 space-y-6 sm:space-y-0 sm:flex py-8 font-[poppins]">
+        <div class="px-5 w-full sm:w-1/2 text-lg sm:text-2xl font-[poppins] text-mindtextmetal">
         
-            Today is the <span class="font-bold text-mindpurple">11th of October</span> in the 
-            year <span class="font-bold text-mindpurple">2009</span>. 
+            <p class="tracking-wide leading-relaxed">
+                Today is the <span class="font-bold text-mindpurple">{{ day }}th of {{ month }}</span> in the 
+            year <span class="font-bold text-mindpurple">{{ year }}</span>. 
             It is a good day to scribble what's on your 
             mind down in your journal.
+            </p>
 
             <br>
-            <br>
-            "Write, write, write!!! that the best way of making 
-            sure to rememeber things and dealing with your 
-            little monster(mind) racing around.
+
+            <p class=" tracking-wide leading-relaxed">
+                "Write, write, write!!! that's the best way of making 
+                sure to remember things and dealing with your 
+                little monster(mind) racing around.
+            </p>
+            
             
         </div>
 
-        <div class=" w-full sm:w-1/2 flex justify-center items-center">
-            <div class="w-full space-y-7 px-3">
-                <div class="w-2/3 mx-auto h-10 flex justify-center items-center shadow ">
-                    <a class="rounded-md  w-full py-2 border-2 border-mindpurple bg-mindcream  text-center text-mindpurple hover:font-bold hover:ring-1 hover:ring-mindpurple" href="{% url 'accounts:login_view' %}"> Log In </a>
+        <div class="w-full sm:w-1/2 flex justify-center items-center">
+            
+            <div class="w-full space-y-7 ">
+                <div class="w-full sm:w-3/4 mx-auto flex justify-center items-center  ">
+                    <a class="rounded-md  w-full py-2 border-2 border-mindpurple shadow bg-mindcream  text-center text-mindpurple hover:font-bold hover:ring-1 hover:ring-mindpurple" href="{% url 'accounts:login_view' %}"> Log In </a>
                 </div>
                 
-                <div class="w-2/3 mx-auto h-10 flex justify-center items-center shadow">
-                    <a class="rounded-md  w-full py-2  bg-mindpurple  text-center text-white hover:font-bold hover:ring hover:ring-mindpurple" href="{% url 'accounts:signup' %}"> Sign Up </a>
-                </div>
-                
-                
+                <div class="w-full sm:w-3/4 mx-auto  flex justify-center items-center ">
+                    <a class="rounded-md w-full  py-2 bg-mindpurple shadow text-center text-white hover:font-bold hover:ring hover:ring-mindpurple" href="{% url 'accounts:signup' %}"> Sign Up </a>
+                </div>                
             </div>
             
         </div>
     </div>
-
-    
-
-    
 
 {% endblock%}
