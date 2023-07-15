@@ -1,47 +1,52 @@
-{% extends 'accounts/base.html' %}
+{% extends 'journal/base.html' %}
 
 {% block title %}
-    <title> MFA 2  </title>
+     MFA 2 
 {% endblock%}
 
 
 
-{% block body %}
+{% block content %}
 
-    <header>
-        <h2>
+<div  class="flex justify-center items-center mt-5 ">
+    <div class="space-y-4 w-2/3 shadow shadow-mindpurple p-4 m-5 rounded-lg">
+        <h2 class="bg-red-200 p-2 mx-auto underline w-2/3 text-center text-lg sm:text-2xl font-medium rounded-lg text-mindpurple font-[poppins]">
             Auth/MFA Level Two
         </h2>
-    </header>
-
-    <!-- 
-        Recovery Question and Answer form to test the inherent  
-        factor of the authentication system
-    -->
-
-    <form action="{% url 'accounts:mfa' 2 %}" method="POST">
-        {% csrf_token %}
-
-        <div>
-            <label for="question"> Recovery Question </label>
-            <input type="text" name="recovery_question" placeholder="Recovery Question">
+    
+        <hr class="border-mindpurple"> 
+        <!-- 
+            Recovery Question and Answer form to test the inherent  
+            factor of the authentication system
+        -->
+        
+        <div class="mx-auto space-y-1 w-2/3">
+            <p class="mx-auto  text-mindtextmetal font-medium"> Recovery Question: </p>
+            <p class="border border-mindpurple  p-2  text-center text-md sm:text-lg font-medium  text-mindpurple font-[poppins]">
+                {{ question }}?
+            </p>
         </div>
         
-        <div>
-            <label for="recovery_answer"> Recovery Answer </label>
-            <input type="text" name="recovery_answer">
-        </div>
 
-        <div>
-            <input type="hidden" name="level" value="2">
-        </div>
+        <form class=" border-mindpurple space-y-7    " action="{% url 'accounts:mfa' 2 %}" method="POST">
+            {% csrf_token %}
+            
+            <div class="mx-auto space-y-1 w-2/3">
+                <label class="mx-auto text-mindtextmetal font-medium" for="recovery_answer"> Recovery Answer: </label>
+                <input class="w-full p-2 shadow-md rounded-lg focus:outline-mindpurple" type="text" name="recovery_answer">
+            </div>
 
-        <div>
-            <input type="submit" value="Verify">
-        </div>
-    
-    </form>
+            <div>
+                <input type="hidden" name="level" value="2">
+            </div>
 
-    
+            <div  class="mx-auto  w-2/3">
+                <input class="w-full p-2 rounded-lg shadow-lg bg-mindpurple font-medium text-white hover:outline-2 hover:outline-mindpurple hover:font-bold" type="submit" value="Verify">
+            </div>
+        
+        </form>
+    </div>
+</div>
+        
     
 {% endblock%}
