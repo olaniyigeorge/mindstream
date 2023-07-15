@@ -20,7 +20,7 @@
                 </div>
             </div>
             
-            <div class="px-2 mb-60 mt-5">
+            <div class="px-2 font-[poppins] mb-60 mt-5">
                 
                 <!-- 
                     A list of entries from the past week is displayed starting with the most recent
@@ -31,7 +31,7 @@
 
                     {% for entry in entries %}
                         <li>
-                            {{ entry }}
+                            {{ entry.text }}
                         </li>
                     {% endfor %}
 
