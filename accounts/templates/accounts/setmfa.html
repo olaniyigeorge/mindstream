@@ -1,49 +1,59 @@
 {% extends 'journal/base.html' %}
 
 {% block title %}
-    <title> Set MFA Details  </title>
+     Set MFA Details 
 {% endblock%}
 
 
-{% block body %}
+{% block content %}
 
-
-    <header>
-        <h3>
+<div class="flex justify-center items-center mt-5 ">
+    <div class=" w-2/3 shadow shadow-mindpurple p-4 m-5 rounded-lg">
+        <h3 class="bg-red-200 p-2 mx-auto  w-full text-center text-lg sm:text-2xl font-medium text-mindpurple font-[poppins]">
             Set recovery question, its answer and OTP Phone Number
         </h3>
-    </header>
+
+        <hr class="border-mindpurple mt-4">
+        {% if message %}
+            {{ message }}
+        {% endif %}
+
+        <div >
+            <form class=" border-mindpurple space-y-4 " action="{% url 'accounts:setmfa' %}" method="post">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="mb-7">
+                    <label class="flex justify-center items-center text-lg font-medium text-mindtextmetal"> 
+                        {{ field.label_tag}} </label> 
+
+                    <div class="mt-1 flex justify-center items-center w-full">
+                        <p class="p-1 border-2 border-mindpurple focus:outline-2 focus:outline-mindpurple"> {{ field }}   </p>
+                    </div>   
+                </div>
+                    <!--
+                        {% if field.help_text %}
+                            {{ field.help_text }}
+                        {% endif %}
 
 
-    {% if message %}
-        {{ message }}
-    {% endif %}
-
-    <div>
-        <form action="{% url 'accounts:setmfa' %}" method="post">
-            {% csrf_token %}
-            
-            {% for field in form %}
-                <p>
-                    {{ field.label_tag}} <br>
-                    {{ field }}
-
-                    {% if field.help_text %}
-                        {{ field.help_text }}
-                    {% endif %}
-
-
-                    {% for error in field.errors %}
-                        {{ error }}
-                    {% endfor %}
-
-                    
-                </p>
-            {% endfor %}
-
-            <input type="submit" value="Update Security">
-        </form>
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    -->
+                {% endfor %}
+                
+                <div class="mx-auto  w-2/3">
+                    <input class="w-full p-2 rounded-lg bg-mindpurple font-medium text-white hover:outline-2 hover:outline-mindpurple hover:font-bold" type="submit" value="Update Security">
+                </div>
+            </form>
+                
+        </div>
     </div>
+</div>
+    
+
+        
         
     
 {% endblock %}
