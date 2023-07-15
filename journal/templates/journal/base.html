@@ -15,9 +15,9 @@
 
     <body class="bg-mindcream px-7">
 
-        <nav class="flex justify-center items-center border-b-2 border-mindpurple py-4">
+        <nav class="flex justify-around items-center border-b-2 border-mindpurple py-4">
             {% if user.is_authenticated %}
-            <div>
+            <div class="bg-white border-2 border-mindpurple rounded-lg text-center text-md sm:text-lg p-2 text-mindpurple font-medium">
                 Search Bar
             </div>
             {% endif%}
@@ -28,7 +28,7 @@
 
 
             {% if user.is_authenticated %}
-                <div>
+                <div class="bg-white border-2 border-mindpurple  rounded-lg text-center text-md sm:text-lg p-2 text-mindpurple font-medium">
                     <a href="{% url 'accounts:logout_view' %}"> Log out </a>            
                 </div>
             {% endif %}
