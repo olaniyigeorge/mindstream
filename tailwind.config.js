@@ -9,7 +9,7 @@ module.exports = {
       colors: {
         "mindcream": "#FFFFDB",
         "mindpurple": "#700170",
-        "mindtextmetal": "#333333"
+        "mindtextmetal": "#121212"
 
       }
     },
