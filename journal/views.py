@@ -1,11 +1,13 @@
 from django.shortcuts import render
 
 from .models import Entry
+from accounts.models import User, UserProfile
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .forms import AddEntryForm
 import datetime
+
 # Create your views here.
 
 months = ['January', 'February', 'March', 'April',
@@ -15,6 +17,9 @@ months = ['January', 'February', 'March', 'April',
 
 
 def index(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("journal:home"))
+
     now = datetime.datetime.now()
     day= now.day
     month = months[now.month - 1] 
@@ -43,6 +48,25 @@ def create_entry(request):
 
     '''
     if request.method == "POST":
+        # Get authenticated user
+        user = request.user
+
+        # Get user's profile
+        userprofile = UserProfile.objects.get(user=user)
+
+        # Get submited entry text
+        entry_text = request.POST['entry_text']
+
+        # Create new entry instance
+        new_entry = Entry.objects.create(author=userprofile, text=entry_text)
+
+        # Save new entry instance
+        new_entry.save()
+
+        # Redirect back home
+        return HttpResponseRedirect(reverse("journal:home"))
+
+        '''
         submitted_form = AddEntryForm(request.POST)
 
         if submitted_form.is_valid():
@@ -62,6 +86,7 @@ def create_entry(request):
             return HttpResponseRedirect(reverse("journal:create_entry"))
         
         pass
+        '''
     
     add_entry_form = AddEntryForm()
     return render(request, "journal/create_entry.html", {'form': add_entry_form})
