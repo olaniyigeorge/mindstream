@@ -12,7 +12,7 @@ class Entry(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title}"
+        return f"{self.text[:10]}..."
     
     def get_date(self):
         # Return the entry date in the format "June 22nd, 2023"
