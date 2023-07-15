@@ -1,7 +1,7 @@
 {% extends 'journal/base.html' %}
 
 {% block title %}
-    <title> Make Entry </title>
+    Make Entry 
 {% endblock%}
 
 
@@ -15,8 +15,8 @@
     <form class="mx-auto p-4 space-y-2 rounded-lg shadow-lg w-2/3" action="{% url 'journal:create_entry' %}" method="POST">
         {% csrf_token %}
 
-        <label class="flex justify-center underline text-2xl text-mindpurple font-medium" for="entry_text"> Add Entry </label>
-        <p class="mx-auto flex justify-center -my-2 text-mindtextmetal">What is on your mind?</p>
+        <label class="flex justify-center underline text-2xl text-mindpurple font-bold" for="entry_text"> Add Entry </label>
+        <p class="mx-auto flex justify-center font-medium -my-2 text-mindtextmetal">What is on your mind?</p>
         <div class="p-2">
             <textarea class="w-full h-64 p-2 bg-transparent focus:outline-mindpurple " type="text" name="entry_text" placeholder="What's on your mind? "></textarea>
         </div>
