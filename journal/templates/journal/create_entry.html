@@ -12,16 +12,16 @@
     <!-- 
         A TextField form to post entry text
     -->
-    <form class="mx-auto p-4 space-y-2 rounded-lg shadow-lg w-2/3" action="{% url 'journal:create_entry' %}" method="POST">
+    <form class="mx-auto bg-white p-4 space-y-2 rounded-lg shadow-lg w-2/3" action="{% url 'journal:create_entry' %}" method="POST">
         {% csrf_token %}
 
-        <label class="flex justify-center underline text-2xl text-mindpurple font-bold" for="entry_text"> Add Entry </label>
+        <label class="flex justify-center underline font-[poppins] text-2xl text-mindpurple font-bold" for="entry_text"> Add Entry </label>
         <p class="mx-auto flex justify-center font-medium -my-2 text-mindtextmetal">What is on your mind?</p>
         <div class="p-2">
-            <textarea class="w-full h-64 p-2 bg-transparent focus:outline-mindpurple " type="text" name="entry_text" placeholder="What's on your mind? "></textarea>
+            <textarea class="w-full font-[poppins] focus:bg-mindcream h-64 p-2 bg-transparent focus:outline-mindpurple " type="text" name="entry_text" placeholder="What's on your mind? "></textarea>
         </div>
         
-        <input class="w-2/3 bg-mindpurple mx-auto text-white font-medium hover:font-bold flex justify-center rounded-lg p-2" type="submit" value="Submit">
+        <input class="w-2/3  bg-mindpurple mx-auto text-white font-medium hover:font-bold flex justify-center rounded-lg p-2" type="submit" value="Submit">
     </form>
     
 </div>
