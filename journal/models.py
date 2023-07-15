@@ -8,7 +8,7 @@ from accounts.models import UserProfile
 class Entry(models.Model):
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="user_entries" )
     text = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(null=True,auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
