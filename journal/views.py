@@ -5,17 +5,25 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .forms import AddEntryForm
+import datetime
 # Create your views here.
 
-
+months = ['January', 'February', 'March', 'April',
+          'May', 'June', 'July',
+          'August', 'September', 'October',
+          'November', 'December']
 
 
 def index(request):
+    now = datetime.datetime.now()
+    day= now.day
+    month = months[now.month - 1] 
+    year = now.year
 
-    return render(request, 'journal/index.html')
+    return render(request, 'journal/index.html', {'day': day, 'month': month, 'year':year})
 
 
-
+ 
 @login_required(login_url="accounts/login")
 def home(request):
     entries = ["This is my first entry", 
@@ -54,6 +62,7 @@ def create_entry(request):
             return HttpResponseRedirect(reverse("journal:create_entry"))
         
         pass
+    
     add_entry_form = AddEntryForm()
     return render(request, "journal/create_entry.html", {'form': add_entry_form})
 
