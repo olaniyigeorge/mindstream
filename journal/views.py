@@ -105,12 +105,16 @@ def create_entry(request):
 
 def day(request, day, month, year):
     '''
-    This view returns the entries in a day, returns an error(empty) page if there is no entry 
-    for the specified date and an error(invalid date format page if the date url format is invalid).
+    This view returns the entries in a day, (TODO returns an empty page message if 
+    there is no entry for the specified date and an error(invalid date format 
+    page if the date url format is invalid).
     '''
 
     # Get entries for this day
     #days_entries = Entry.objects.filter(created_at.date=)
+
+    # Check/validate date
+    date = datetime.datetime(year,month,day).date()
 
     today = datetime.datetime.today()
 
@@ -124,12 +128,10 @@ def day(request, day, month, year):
 
     this_days_entries =[]
     for entry in usersentries:
-        print(entry, '---',)
-        print(entry.get_date, '--')
-        if entry.get_date == str(datetime.date(year,month,day)):
+        print(str(entry.created_at.date()), '--', str(date))
+        if str(entry.created_at.date())== str(date):
             this_days_entries.append(entry)
 
-    print(this_days_entries)
     return render(request, 'journal/daypage.html', {"daysentries": this_days_entries, 
                                                     "day": day, 
                                                     "month":month, 
