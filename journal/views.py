@@ -37,6 +37,7 @@ def home(request):
                "I'm here again for the second time to write down my thoughts",
                 "This is my third entry"]"""
     
+    #TODO Change timezone (+1)
     today_datetime = datetime.datetime.today()
 
     # Get auth'd user and their profile
