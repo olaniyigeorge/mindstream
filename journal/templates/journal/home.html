@@ -8,39 +8,61 @@
 
 {% block content %}
 
-    <div class="flex mx-4 mt-4 ">
-        <div class="w-1/12  flex justify-center items-center border border-mindpurple text-mindpurple">Prev</div>
+    <div class=" justify-center items-center w-full shadow-md rounded-md shadow-mindpurple mt-4 ">
+        
 
-        <div class="w-10/12 px-2 border border-mindpurple ">
-            <div class="flex justify-between text-mindpurple font-medium py-4 px-2 bg-mindpurple">
-                <div class="rounded-lg bg-white p-2">Date</div>
+        <div class="w-full  border border-mindpurple ">
+            <div class="flex bg-red-200 justify-between text-mindpurple font-medium py-2 sm:py-4 px-2 border-b-2 rounded-t-md border-mindpurple">
+                <div class="rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
+                    Today - {{ today_datetime }}
+                </div>
                 
-                <div class="rounded-lg bg-white p-2">
+                <div class="rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
                     <a href="{% url 'journal:create_entry' %}"> Add Entry </a>
                 </div>
+                
             </div>
             
-            <div class="px-2 font-[poppins] mb-60 mt-5">
+
+            <div class="px-2 font-[poppins] mb96 mt-5">
                 
                 <!-- 
                     A list of entries from the past week is displayed starting with the most recent
                 -->
                 
 
-                <ul>
-
                     {% for entry in entries %}
-                        <li>
-                            {{ entry.text }}
-                        </li>
+                        <div>
+                            <div class="italic text-mindpurple">
+                                {{ entry.created_at }}
+                                {{ entry.get_date }}
+                            </div>
+                            <div>
+                                {{ entry.text }}
+                            </div>
+                        </div>
+
+                        <p>--------</p>
+                        
                     {% endfor %}
 
-                </ul>
             </div>
         </div>
 
-        <div class="w-1/12 flex justify-center items-center border border-mindpurple text-mindpurple">Next</div>
-    
+        <div class="h-20 flex justify-center items-center border-t-2 border-mindpurple rounded-b-md bg-red-200">
+            <!--
+                Input Date Form
+            -->
+            <form class="bg-red-400" action="{% url 'journal:search-archive'  %}" method="POST">
+                {% csrf_token %}
+                <label for="day"> Date </label>
+                <input type="date" name="date" placeholder="Pick a date to go to">
+
+                <input type="submit" value="Go to Date">
+            </form>
+        </div>
+
+        
     </div>
     
     
