@@ -15,23 +15,28 @@
 
     <body class="bg-mindcream px-7">
 
-        <nav class="flex justify-around items-center border-b-2 border-mindpurple py-4">
-            {% if user.is_authenticated %}
-            <div class="bg-white border-2 border-mindpurple rounded-lg text-center text-md sm:text-lg p-2 text-mindpurple font-medium">
-                Search Bar
+        <nav class="flex justify-between items-center border-b-2 border-mindpurple py-3 md:py-3">
+            <div>
+                {% if user.is_authenticated %}
+                    <div class="bg-white border-2 border-mindpurple rounded-lg text-center text-sm md:text-md sm:text-lg py-1 px-2 md:px-3 text-mindpurple font-medium">
+                        Search Bar
+                    </div>
+                {% endif%}
             </div>
-            {% endif%}
+            
 
-            <div class="font-bold font-[Poppins] text-8xl md:text-9xl text-mindpurple">
+            <div class="font-bold font-[Poppins] text-5xl md:text-9xl text-mindpurple">
                 <a href="{% url 'journal:index' %}"> Journal </a>
             </div>
 
-
-            {% if user.is_authenticated %}
-                <div class="bg-white border-2 border-mindpurple  rounded-lg text-center text-md sm:text-lg p-2 text-mindpurple font-medium">
-                    <a href="{% url 'accounts:logout_view' %}"> Log out </a>            
-                </div>
-            {% endif %}
+            <div>
+                {% if user.is_authenticated %}
+                    <div class="bg-white border-2 border-mindpurple  rounded-lg text-center text-sm md:text-md sm:text-lg py-1 px-2 md:px-3 text-mindpurple font-medium hover:text-bold hover:text-white hover:bg-mindpurple">
+                        <a href="{% url 'accounts:logout_view' %}"> Log Out </a>            
+                    </div>
+                {% endif %}
+            </div>
+            
         </nav>
         
 
