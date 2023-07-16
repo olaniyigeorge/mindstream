@@ -16,11 +16,11 @@ class Entry(models.Model):
     
     def get_date(self):
         # Return the entry date in the format "June 22nd, 2023"
-        return f"{str(self.created_at.date)}"
+        return f"{str(self.created_at.date())}"
 
     def get_time(self):
         # Return the entry time in the format "20:25:54"
-        return f"{str(self.created_at.time)}"
+        return f"{str(self.created_at.time())}"
     
     
 
