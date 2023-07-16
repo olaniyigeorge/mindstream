@@ -16,6 +16,8 @@ months = ['January', 'February', 'March', 'April',
           'November', 'December']
 
 
+
+
 def index(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse("journal:home"))
@@ -31,15 +33,23 @@ def index(request):
  
 @login_required(login_url="accounts/login")
 def home(request):
-    entries = ["This is my first entry", 
+    """entries = ["This is my first entry", 
                "I'm here again for the second time to write down my thoughts",
-                "This is my third entry"]
+                "This is my third entry"]"""
     
-    db_entries = Entry.objects.all()
+    today = datetime.datetime.today()
 
-    entries += db_entries
+    # Get auth'd user and their profile
+    userprofile = UserProfile.objects.get(user=request.user)
+
+
+    #TODO How django represent dates in db.sqlite3
+    #TODO How to filter a model by date 
+
+    # Get entries from this author
+    entries = Entry.objects.filter(author=userprofile)
     
-    return render(request, 'journal/home.html', {'entries': entries})
+    return render(request, 'journal/home.html', {'entries': entries, "today": today})
 
 def create_entry(request):
     '''
@@ -93,12 +103,37 @@ def create_entry(request):
 
 
 
-def day(request):
+def day(request, day, month, year):
     '''
     This view returns the entries in a day, returns an error(empty) page if there is no entry 
     for the specified date and an error(invalid date format page if the date url format is invalid).
     '''
-    return render(request, 'journal/daypage.html')
+
+    # Get entries for this day
+    #days_entries = Entry.objects.filter(created_at.date=)
+
+    today = datetime.datetime.today()
+
+    # Get auth'd user and their profile
+    userprofile = UserProfile.objects.get(user=request.user)
+
+
+    # Get entries from this author
+    usersentries = Entry.objects.filter(author=userprofile)
+
+
+    this_days_entries =[]
+    for entry in usersentries:
+        print(entry, '---',)
+        print(entry.get_date, '--')
+        if entry.get_date == str(datetime.date(year,month,day)):
+            this_days_entries.append(entry)
+
+    print(this_days_entries)
+    return render(request, 'journal/daypage.html', {"daysentries": this_days_entries, 
+                                                    "day": day, 
+                                                    "month":month, 
+                                                    "year":year})
 
 
 def archive(request, filter_on='months'):
