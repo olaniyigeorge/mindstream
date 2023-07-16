@@ -37,7 +37,7 @@ def home(request):
                "I'm here again for the second time to write down my thoughts",
                 "This is my third entry"]"""
     
-    today = datetime.datetime.today()
+    today_datetime = datetime.datetime.today()
 
     # Get auth'd user and their profile
     userprofile = UserProfile.objects.get(user=request.user)
@@ -49,7 +49,7 @@ def home(request):
     # Get entries from this author
     entries = Entry.objects.filter(author=userprofile)
     
-    return render(request, 'journal/home.html', {'entries': entries, "today": today})
+    return render(request, 'journal/home.html', {'entries': entries, "today_datetime": today_datetime})
 
 def create_entry(request):
     '''
@@ -102,8 +102,7 @@ def create_entry(request):
     return render(request, "journal/create_entry.html", {'form': add_entry_form})
 
 
-
-def day(request, day, month, year):
+def day_view(request, year, month, day):
     '''
     This view returns the entries in a day, (TODO returns an empty page message if 
     there is no entry for the specified date and an error(invalid date format 
@@ -114,7 +113,7 @@ def day(request, day, month, year):
     #days_entries = Entry.objects.filter(created_at.date=)
 
     # Check/validate date
-    date = datetime.datetime(year,month,day).date()
+    date = datetime.date(year,month,day)
 
     today = datetime.datetime.today()
 
@@ -136,6 +135,22 @@ def day(request, day, month, year):
                                                     "day": day, 
                                                     "month":month, 
                                                     "year":year})
+
+def search_archive(request):
+    '''
+    This view is used to collect date from users, check that it is 
+    in the right format and redirect to the date's page
+    '''
+    if request.method == "POST":
+        
+        date = request.POST['date']
+        print(date)
+        year, month, day = date.split('-')
+        
+        return day_view(request, int(year), int(month), int(day))
+        #HttpResponseRedirect(reverse("journal:day_view", args={f"{int(year)}/{int(month)}/{int(day)}"}))
+
+        #return HttpResponseRedirect(reverse("journal:index"))
 
 
 def archive(request, filter_on='months'):
