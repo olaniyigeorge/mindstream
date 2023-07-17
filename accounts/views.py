@@ -190,9 +190,19 @@ def mfa(request, level):
 
             # Check if there exists an OTPcode in the database with this code and this user
             if OTPCode.objects.filter(code=otp_code, owner=user).exists():
-                # If the code exists for this user...
+                '''
+                If the code exists for this user...
+                Clean up pk from session, delete otpcode from db 
+                then log user in
+                '''
 
                 #TODO Delete pk from sessions
+                if request.session['tupk']:
+                    del request.session['tupk']
+
+                # Delete OTPCode from db
+                used_code = OTPCode.objects.get(code=otp_code, owner=user)    
+                used_code.delete()
 
                 # Log user in
                 login(request, user)
@@ -207,7 +217,7 @@ def mfa(request, level):
 
                 # Redirect user to the login_view to restart the MFA 
                 # process from level one
-                return HttpResponseRedirect(reverse("account:login_view"))
+                return HttpResponseRedirect(reverse("accounts:login_view"))
 
             
 
