@@ -29,23 +29,35 @@ def index(request):
 
     return render(request, 'journal/index.html', {'day': day, 'month': month, 'year':year})
 
-def filter_entries(author=None, date=None) -> list:
+def filter_entries(author=None, date=None, query=None) -> list:
     '''
     This function takes an entry author and a date and returns 
     a list of entries by that author on that date
     '''
-    if author is not None and date is not None:
-        try:
-            authors_entries = Entry.objects.filter(author=author)
-        except:
-            TypeError("Couldn't filter entries. Author probably not valid")
+    try:
+        authors_entries = Entry.objects.filter(author=author)
+    except:
+        TypeError("Couldn't filter entries. Author probably not valid")
+    
+    # Filter with query
+    if query is not None:
+        search_result = []
+        for entry in authors_entries:
+            #print(query.lower(), '--', entry.text.lower() )
+            if query.lower() in entry.text.lower():
+                #print("passed")
+                search_result.append(entry)
+                #print(entry.text)
+        return search_result
+        
+    # Filter with date
+    if date is not None:
+        this_days_entries =[]
+        for entry in authors_entries:
+            if str(entry.created_at.date())== str(date):
+                this_days_entries.append(entry)
 
-    this_days_entries =[]
-    for entry in authors_entries:
-        if str(entry.created_at.date())== str(date):
-            this_days_entries.append(entry)
-
-    return this_days_entries
+        return this_days_entries
 
 
 
@@ -139,9 +151,6 @@ def day_view(request, year, month, day):
 
     # Get auth'd user and their profile
     userprofile = UserProfile.objects.get(user=request.user)
-    # Get entries from this author
-    usersentries = Entry.objects.filter(author=userprofile)
-
 
     # Filter entries by author and date
     days_entries = filter_entries(userprofile, date)
@@ -161,6 +170,17 @@ def search_archive(request):
     #TODO Customize this funtion to work for text search too
     '''
     if request.method == "POST":
+        if request.POST['query']:
+            # Get query
+            query = request.POST['query']
+            # Get auth'd user and their profile
+            userprofile = UserProfile.objects.get(user=request.user)
+            # Filter entries by author and date
+            entries = filter_entries(author=userprofile, query=query)
+
+            return render(request, "journal/search-results.html", {"results":entries, "query": query})
+
+            
         # Get submitted date
         date = request.POST['date']
         print(date)
