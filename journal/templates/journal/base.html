@@ -18,8 +18,12 @@
         <nav class="flex justify-between items-center border-b-2 border-mindpurple py-3 md:py-3">
             <div>
                 {% if user.is_authenticated %}
-                    <div class="bg-white border-2 border-mindpurple rounded-lg text-center text-sm md:text-md sm:text-lg py-1 px-2 md:px-3 text-mindpurple font-medium">
-                        Search Bar
+                    <div class="w-20 md:w-28 shadow bg-white border-2 bordermindpurple rounded-lg text-center text-sm md:text-md sm:text-lg p-1 md:px-2 text-mindpurple font-medium">
+                        <form class=" items-center" action="{% url 'journal:search-archive' %}" method="POST">
+                            {% csrf_token %}
+                            <input class="w-full text-sm -p-2 outline-none focus:outline-none"type="text" name="query" placeholder="Search journal">
+                            
+                        </form>
                     </div>
                 {% endif%}
             </div>
@@ -31,7 +35,7 @@
 
             <div>
                 {% if user.is_authenticated %}
-                    <div class="bg-white border-2 border-mindpurple  rounded-lg text-center text-sm md:text-md sm:text-lg py-1 px-2 md:px-3 text-mindpurple font-medium hover:text-bold hover:text-white hover:bg-mindpurple">
+                    <div class="bg-white shadow border-2 bordermindpurple  rounded-lg text-center text-sm md:text-md sm:text-lg py-1 px-2 md:px-3 text-mindpurple font-medium hover:text-bold hover:text-white hover:bg-mindpurple">
                         <a href="{% url 'accounts:logout_view' %}"> Log Out </a>            
                     </div>
                 {% endif %}
