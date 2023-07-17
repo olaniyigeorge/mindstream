@@ -13,6 +13,5 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout_view')
     
     # path('editprofile', views.editprofile, name='editprofile'),
-    # path('mfa2', views.login, name='recovery_question'),
-    # 
+
 ]
