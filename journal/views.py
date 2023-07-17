@@ -29,8 +29,27 @@ def index(request):
 
     return render(request, 'journal/index.html', {'day': day, 'month': month, 'year':year})
 
+def filter_entries(author=None, date=None) -> list:
+    '''
+    This function takes an entry author and a date and returns 
+    a list of entries by that author on that date
+    '''
+    if author is not None and date is not None:
+        try:
+            authors_entries = Entry.objects.filter(author=author)
+        except:
+            TypeError("Couldn't filter entries. Author probably not valid")
 
- 
+    this_days_entries =[]
+    for entry in authors_entries:
+        print(str(entry.created_at.date()), '--', str(date))
+        if str(entry.created_at.date())== str(date):
+            this_days_entries.append(entry)
+
+    return this_days_entries
+
+
+
 @login_required(login_url="accounts/login")
 def home(request):
     """entries = ["This is my first entry", 
@@ -47,10 +66,10 @@ def home(request):
     #TODO How django represent dates in db.sqlite3
     #TODO How to filter a model by date 
 
-    # Get entries from this author
-    entries = Entry.objects.filter(author=userprofile)
+    # Filter out today's entries
+    todays_entries = filter_entries(userprofile, today_datetime.date())
     
-    return render(request, 'journal/home.html', {'entries': entries, "today_datetime": today_datetime})
+    return render(request, 'journal/home.html', {'entries': todays_entries, "today_datetime": today_datetime})
 
 def create_entry(request):
     '''
@@ -114,25 +133,24 @@ def day_view(request, year, month, day):
     #days_entries = Entry.objects.filter(created_at.date=)
 
     # Check/validate date
-    date = datetime.date(year,month,day)
-
-    today = datetime.datetime.today()
+    try:
+        date = datetime.date(year,month,day)
+    except:
+        ValueError("Invalid date format")
 
     # Get auth'd user and their profile
     userprofile = UserProfile.objects.get(user=request.user)
-
-
     # Get entries from this author
     usersentries = Entry.objects.filter(author=userprofile)
 
 
-    this_days_entries =[]
-    for entry in usersentries:
-        print(str(entry.created_at.date()), '--', str(date))
-        if str(entry.created_at.date())== str(date):
-            this_days_entries.append(entry)
+    # Filter entries by author and date
+    days_entries = filter_entries(userprofile, date)
 
-    return render(request, 'journal/daypage.html', {"daysentries": this_days_entries, 
+    
+    # Render daypage populated with entries for the specified date
+    return render(request, 'journal/daypage.html', 
+                                                    {"daysentries": days_entries, 
                                                     "day": day, 
                                                     "month":month, 
                                                     "year":year})
@@ -141,6 +159,7 @@ def search_archive(request):
     '''
     This view is used to collect date from users, check that it is 
     in the right format and redirect to the date's page
+    #TODO Customize this funtion to work for text search too
     '''
     if request.method == "POST":
         
