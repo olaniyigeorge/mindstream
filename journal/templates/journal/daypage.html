@@ -70,12 +70,11 @@
         <!--
             Input Date Form
         -->
-        <form class="bg-red-400" action="{% url 'journal:search-archive'  %}" method="POST">
+        <form class="flex space-x-3 " action="{% url 'journal:search-archive'  %}" method="POST">
             {% csrf_token %}
-            <label for="day"> Date </label>
-            <input type="date" name="date" placeholder="Pick a date to go to">
+            <input class="bg-transparent text-sm md:text-md font-[poppins] p-1 rounded-md border border-mindpurple focus:outline-white" required type="date" name="date" placeholder="Pick a date to go to">
 
-            <input type="submit" value="Go to Date">
+            <input class="bg-mindpurple px-2 text-white rounded-md font-[poppins]" type="submit" value="Go to Date">
         </form>
     </div>
 
