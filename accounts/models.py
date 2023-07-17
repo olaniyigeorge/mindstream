@@ -53,7 +53,8 @@ class OTPCode(models.Model):
 
 
 
-# Signal triggered upon creation of a new user to create a UserProfile for that user 
+# Signal triggered upon creation of a new user to create a UserProfile
+## for that user 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
