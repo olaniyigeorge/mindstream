@@ -48,6 +48,9 @@ def filter_entries(author=None, date=None, query=None) -> list:
                 #print("passed")
                 search_result.append(entry)
                 #print(entry.text)
+        
+        # Reverse list so most recent entries shows at the top
+        search_result.reverse()
         return search_result
         
     # Filter with date
@@ -56,7 +59,9 @@ def filter_entries(author=None, date=None, query=None) -> list:
         for entry in authors_entries:
             if str(entry.created_at.date())== str(date):
                 this_days_entries.append(entry)
-
+        
+        # Reverse list so most recent entries shows at the top
+        this_days_entries.reverse()
         return this_days_entries
 
 
@@ -188,8 +193,7 @@ def search_archive(request):
             
         # Get submitted date
         date = request.POST['date']
-        print(date)
-
+        
         # Get today's date and Redirect home if the searched date is today
         today = datetime.date.today()
         if date == str(today):
