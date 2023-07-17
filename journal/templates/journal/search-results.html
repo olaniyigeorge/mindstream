@@ -1,0 +1,81 @@
+{% extends "journal/base.html" %}
+
+
+    <!-- TODO
+            Date description for days within the past seven days and the 
+            actual daye in format "June 22nd, 2023" if not
+        -->
+{% block title %}
+
+        {{ query }}
+{% endblock%}
+
+
+{% block content %}
+
+<div class=" justify-center items-center w-full shadow-md rounded-md shadow-mindpurple mt-4 ">
+        
+
+    <div class="w-full  border border-mindpurple ">
+        <div class="flex bg-red-200 justify-between text-mindpurple font-medium py-2 sm:py-4 px-2 border-b-2 rounded-t-md border-mindpurple">
+            <div class="rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
+            
+                <!--
+                Search query
+                -->
+
+                <span class="underline"> Query:</span> {{ query }} 
+            </div>
+            
+            <div class="rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
+                <a href="{% url 'journal:create_entry' %}"> Add Entry </a>
+            </div>
+            
+        </div>
+
+        <div class="px-2 font-[poppins] mb96 mt-5">
+            
+            <!--
+            A list of entries with query 
+            -->
+            {% for entry in results %}
+            <div>
+                <div class="italic text-mindpurple">
+                    {{ entry.created_at }}
+            
+                </div>
+                <div>
+                    {{ entry.text }}
+                </div>
+            </div>
+
+            <p>--------</p>
+            {% empty %}
+                <div class="flex justify-center items-center p-4">
+
+                    <span class=""> There are no entries with keyword <span class="text-mindpurple  text-lg font-bold"> {{ query }} </span></span>
+                </div>
+                
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+    <div class="h-20 mt-4 flex justify-center items-center border-t-2 border-mindpurple rounded-b-md bg-red-200">
+        <!--
+            Input Date Form
+        -->
+        <form class="flex space-x-3 " action="{% url 'journal:search-archive'  %}" method="POST">
+            {% csrf_token %}
+            <input class="bg-transparent text-sm md:text-md font-[poppins] p-1 rounded-md border border-mindpurple focus:outline-white" required type="date" name="date" placeholder="Pick a date to go to">
+
+            <input class="bg-mindpurple px-2 text-white rounded-md font-[poppins]" type="submit" value="Go to Date">
+        </form>
+    </div>
+
+    
+</div>
+    
+    
+{% endblock%}
