@@ -14,38 +14,73 @@
 
 {% block content %}
 
-    <header> 
-        <!--
-            Displays date and time in the format 
-             
-            5:56 PM
-            Thursday, June 22nd, 2023
-        -->
+<div class=" justify-center items-center w-full shadow-md rounded-md shadow-mindpurple mt-4 ">
+        
 
-        {{day}}/{{month}}/{{year}}
-    </header>
+    <div class="w-full  border border-mindpurple ">
+        <div class="flex bg-red-200 justify-between text-mindpurple font-medium py-2 sm:py-4 px-2 border-b-2 rounded-t-md border-mindpurple">
+            <div class="rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
+            
+                <!--
+                Displays date and time in the format 
+                
+                5:56 PM
+                Thursday, June 22nd, 2023
+                -->
 
-    
-    <div>
-        <!--
-            A list of this day's entries 
-        -->
-        {% for entry in daysentries %}
-        <div>
-            <div class="italic text-mindpurple">
-                {{ entry.created_at }}
-                {{ entry.get_date }}
+                <span class="underline"> Date:</span> {{day}}/{{month}}/{{year}}
             </div>
-            <div>
-                {{ entry.text }}
+            
+            <div class="rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
+                <a href="{% url 'journal:create_entry' %}"> Add Entry </a>
             </div>
+            
         </div>
 
-        <p>--------</p>
-        
-        {% endfor %}
+        <div class="px-2 font-[poppins] mb96 mt-5">
+            
+            <!--
+            A list of this day's entries 
+            -->
+            {% for entry in daysentries %}
+            <div>
+                <div class="italic text-mindpurple">
+                    {{ entry.created_at }}
+                    {{ entry.get_date }}
+                </div>
+                <div>
+                    {{ entry.text }}
+                </div>
+            </div>
 
+            <p>--------</p>
+            {% empty %}
+                <div class="flex justify-center items-center p-4">
+
+                    <span class=""> There are no entries for <span class="text-mindpurple  text-lg font-bold"> {{day}}/{{month}}/{{year}} </span></span>
+                </div>
+                
+            {% endfor %}
+
+
+        </div>
     </div>
+
+    <div class="h-20 mt-4 flex justify-center items-center border-t-2 border-mindpurple rounded-b-md bg-red-200">
+        <!--
+            Input Date Form
+        -->
+        <form class="bg-red-400" action="{% url 'journal:search-archive'  %}" method="POST">
+            {% csrf_token %}
+            <label for="day"> Date </label>
+            <input type="date" name="date" placeholder="Pick a date to go to">
+
+            <input type="submit" value="Go to Date">
+        </form>
+    </div>
+
+    
+</div>
     
     
 {% endblock%}
