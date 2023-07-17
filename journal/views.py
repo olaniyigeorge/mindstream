@@ -170,9 +170,14 @@ def search_archive(request):
     #TODO Customize this funtion to work for text search too
     '''
     if request.method == "POST":
-        if request.POST['query']:
-            # Get query
+        # Try to get query...
+        try:
             query = request.POST['query']
+        # If query not in request.POST, skip and go check for submitted date
+        except:
+            pass
+        # If query in request.POST 
+        else:
             # Get auth'd user and their profile
             userprofile = UserProfile.objects.get(user=request.user)
             # Filter entries by author and date
