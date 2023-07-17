@@ -18,3 +18,13 @@ Built with the Django web framework, Mindstream also uses a 3-layer Multi Factor
 This security system is to demostrate the use of a MFA security system to avoid data leakage, the importance/strengths of this system in securing sensitive data(in this case personal information) and of course, its weaknesses. 
 
 
+
+## How to run locally/contribute
+
+1. Clone the repo using `git clone https://github.com/olaniyigeorge/mindstream.git`
+2. Create a virtual environment in the cloned repo's directory with `python -m venv env`
+3. Activate the virtual environment `env\Scripts\activate`
+4. Install the dependencies `pip install -r requirements.txt`
+5. Run `python manage.py makemigrations` then `python manage.py migrate` to setup the database
+6. Run the server from the command line(in the project directory) with `python manage.py runserver`
+7. Lastly, navigate to `http://127.0.0.1:8000/` in your web browser 
