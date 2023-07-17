@@ -39,6 +39,16 @@
                         </div>
 
                         <p>---------</p>
+                    {% empty %}
+                        <div class="flex justify-center items-center my-32">
+                            <div  >
+                                <p class="text-center"> You haven't added an entry today 
+                                    <br>
+                                    <span class="italic text-mindpurple">What's on your mind?</span>
+                                </p>
+                                
+                            </div> 
+                        </div>
                         
                     {% endfor %}
 
