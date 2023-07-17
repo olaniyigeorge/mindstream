@@ -42,7 +42,6 @@ def filter_entries(author=None, date=None) -> list:
 
     this_days_entries =[]
     for entry in authors_entries:
-        print(str(entry.created_at.date()), '--', str(date))
         if str(entry.created_at.date())== str(date):
             this_days_entries.append(entry)
 
@@ -162,15 +161,21 @@ def search_archive(request):
     #TODO Customize this funtion to work for text search too
     '''
     if request.method == "POST":
-        
+        # Get submitted date
         date = request.POST['date']
         print(date)
+
+        # Get today's date and Redirect home if the searched date is today
+        today = datetime.date.today()
+        if date == str(today):
+            return HttpResponseRedirect(reverse("journal:index"))
+        
+        # Split date into year,month and day
         year, month, day = date.split('-')
         
+        #TODO Rewrite to redirect to the date_page with the args in the right order
         return day_view(request, int(year), int(month), int(day))
         #HttpResponseRedirect(reverse("journal:day_view", args={f"{int(year)}/{int(month)}/{int(day)}"}))
-
-        #return HttpResponseRedirect(reverse("journal:index"))
 
 
 def archive(request, filter_on='months'):
