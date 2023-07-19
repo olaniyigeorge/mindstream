@@ -34,7 +34,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     #display_name = models.CharField(max_length=25, null=True, blank=True)
     phone_number = PhoneNumberField(region='NG', blank=True, null=True)
-
+    phone_number_verified = models.BooleanField(default=False, blank=True, null=True)
     
     # MFA Security
     #TODO List a set of predetermined recovery questions and change recovery_question field to TextChoice field
@@ -43,11 +43,24 @@ class UserProfile(models.Model):
     recovery_question = models.CharField(max_length=255)
     recovery_answer = models.CharField(max_length=30)
 
+    def __str__(self):
+        return f"{self.user.email}"
+    
+    
+
+
 
 class OTPCode(models.Model):
-    # TODO Read up on how ong it takes to guess/break a four digit code vs a six digit code
+    # TODO Read up on how long it takes to guess/break a four digit code vs a six digit code
     code = models.CharField(max_length=6, null=False, blank=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.code} for {self.owner}"
+    
+    def send_code(self):
+        pass
+
 
 
 
