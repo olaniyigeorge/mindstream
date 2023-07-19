@@ -84,18 +84,18 @@ def setmfa(request):
             # Set these data for the user
             profile.recovery_question = question
             profile.recovery_answer = answer
-            profile.phone_number = phone_number
 
             # Save profile
             profile.save()
+
+
+            # Save phone_number and user_id in sessions
+            request.session['phone_number'] = str(phone_number)
+            request.session['tupk'] = pk
             
-            # Try to log the user in 
-            # TODO "Try" because, i dont have access to email and password anymore and I'm not  
-            #  calling authenticate(user) so I'm not sure authentication will be successful
-            login(request, user)
-        
-            # Redirect to the home page
-            return HttpResponseRedirect(reverse("journal:home"))
+
+            # Redirect to verify phone number page
+            return HttpResponseRedirect(reverse("accounts:verify-phonenumber"))
         
         else:
             # Users are redirected back to restart the MFA setup process
@@ -108,6 +108,72 @@ def setmfa(request):
     # GET: Serves the setmfa form
     setupmfaform = SetUpMFAForm()
     return render(request, 'accounts/setmfa.html', {'form':setupmfaform})
+
+def verify_phonenumber(request):
+    '''
+    Users get this view to verify the phonenumber they submitted 
+    upon setting up mfa after signup.
+    '''
+    # Get the user_id and phonenumber for the session
+    user_pk = request.session["tupk"]
+    phone_number = request.session["phone_number"]
+    
+    if request.method == "POST":
+        # Get submitted OTP
+        otp_code = request.POST['otp']
+        
+        # Get user
+        user = User.objects.get(pk=user_pk)
+
+        # Check if there exists an OTPcode in the database with this code and this user
+        if OTPCode.objects.filter(code=otp_code, owner=user).exists():
+            '''
+            If the code exists for this user...
+            Clean up pk from session, delete otpcode from db 
+            then log user in
+            '''
+            # Get User's Profile
+            userprofile = UserProfile.objects.get(user=user)
+
+            # Set phone number and phone_number_verified to True
+            userprofile.phone_number = phone_number
+            userprofile.phone_number_verified = True
+
+            userprofile.save()
+
+            # Delete pk and phone_number from sessions
+            if request.session['tupk']:
+                del request.session['tupk']
+            if request.session['phone_number']:
+                del request.session['phone_number']
+
+
+            # Delete OTPCode from db
+            used_code = OTPCode.objects.get(code=otp_code, owner=user)    
+            used_code.delete()
+
+            # Log user in
+            login(request, user)
+
+            #Redirect to home page
+            return HttpResponseRedirect(reverse("journal:home"))
+
+
+    code = random.randint(100000, 999999)
+    
+    user = User.objects.get(pk=user_pk)
+
+    # Create a OTPcode with this user as the user as the owner and save in database
+    otpcode = OTPCode.objects.create(code=code, owner=user)
+    otpcode.save()
+    
+    # Send OTP code 
+    #TODO Send to phone_number
+    print(phone_number)
+    print(otpcode)
+
+    return render(request, "accounts/verifyphonenumber.html")
+
 
 def login_view(request):
     # Redirects to mfa view passing in 1 as an argument to 
@@ -204,6 +270,7 @@ def mfa(request, level):
                 used_code = OTPCode.objects.get(code=otp_code, owner=user)    
                 used_code.delete()
 
+
                 # Log user in
                 login(request, user)
 
@@ -211,7 +278,7 @@ def mfa(request, level):
                 return HttpResponseRedirect(reverse("journal:home"))
 
             else:
-                # If the code provided doesn't checkout(is'nt in the database)
+                # If the code provided doesn't checkout(isn't in the database)
 
                 #TODO Delete pk from 
 
@@ -261,6 +328,7 @@ def mfa(request, level):
 
         # Serve form to get the OTPcode from the user 
         return render(request, "accounts/mfathree.html")
+
 
 def logout_view(request):
     '''
