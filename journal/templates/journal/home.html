@@ -12,12 +12,16 @@
         
 
         <div class="w-full space-y-5 borderborder-mindpurple ">
-            <div class="flex bg-red-200 justify-between text-mindpurple font-medium py-2 sm:py-4 px-2 border-b-2 rounded-t-md border-mindpurple">
-                <div class="rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
+            <div class="flex bg-red-200 justify-between items-center text-mindpurple font-medium py-2 sm:py-4 px-2 border-b-2 rounded-t-md border-mindpurple">
+                <div class="text-sm md:text-md rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
                     Today - {{ today_datetime }}
                 </div>
                 
-                <div class="rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
+                <div class="underline text-xs font-medium font-[poppins]">
+                    {{ user.email}}
+                </div>
+                
+                <div class="text-sm md:text-md rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
                     <a href="{% url 'journal:create_entry' %}"> Add Entry </a>
                 </div>
                 
