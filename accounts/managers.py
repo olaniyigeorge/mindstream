@@ -23,8 +23,6 @@ class UserManager(BaseUserManager):
         with the given email and password.
         """
         extra_fields.setdefault('is_superuser', True)
-    
-
         
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
