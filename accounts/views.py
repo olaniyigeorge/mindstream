@@ -24,14 +24,12 @@ def signup(request):
         # Get the values of the SignUp form in order
         form = SignUpForm(request.POST)
         
-        if form.is_valid():
-            #Do stuff if the form is valid
-            
+        if form.is_valid():            
             # Saves a new user object from the  form's data 
             user = form.save()
 
             # Save user  --- THIS LINE CREATES A USER, WHICH TRRIGGERS THE SIGNAL TO CREATE A
-            #                USERPROFILE(with all fields set to the default value) FOR THE USER
+            # USERPROFILE(with all fields set to the default value) FOR THE USER
             user.save()
 
             # Try(in a case where fr some reason the user isnt created) to get the user ID
@@ -41,7 +39,6 @@ def signup(request):
             except:
                 raise ValueError("Couldn't get user")
             
-
             # Save user id in session with key 'tupk(this user primary key)'
             request.session['tupk'] = thisuser.pk
 
@@ -88,19 +85,17 @@ def setmfa(request):
             # Save profile
             profile.save()
 
-
             # Save phone_number and user_id in sessions
             request.session['phone_number'] = str(phone_number)
             request.session['tupk'] = pk
             
-
             # Redirect to verify phone number page
             return HttpResponseRedirect(reverse("accounts:verify-phonenumber"))
         
         else:
             # Users are redirected back to restart the MFA setup process
-            # TODO For now, the above is the normal behavior. But in a situation where the user doesn't 
-            # TODO ...... the save primary key in their session (anymore), what should happen? 
+            # TODO For now, the above is the normal behavior. But in a situation where the user's
+            # TODO ...... primary key isn't in the session anymore, what should happen? 
             
             return HttpResponseRedirect(reverse("accounts:setmfa"))
         
@@ -138,7 +133,6 @@ def verify_phonenumber(request):
             # Set phone number and phone_number_verified to True
             userprofile.phone_number = phone_number
             userprofile.phone_number_verified = True
-
             userprofile.save()
 
             # Delete pk and phone_number from sessions
@@ -146,7 +140,6 @@ def verify_phonenumber(request):
                 del request.session['tupk']
             if request.session['phone_number']:
                 del request.session['phone_number']
-
 
             # Delete OTPCode from db
             used_code = OTPCode.objects.get(code=otp_code, owner=user)    
@@ -157,6 +150,28 @@ def verify_phonenumber(request):
 
             #Redirect to home page
             return HttpResponseRedirect(reverse("journal:home"))
+        else:
+            user = User.objects.get(pk=user_pk)
+            
+            # Get all OTPs for the user and delete them 
+            usersOTPs =  OTPCode.objects.filter(owner=user)
+
+            for code in usersOTPs:
+                code.delete()
+
+            code = random.randint(100000, 999999)
+
+            # Create a OTPcode with this user as the user as the owner and save in database
+            otpcode = OTPCode.objects.create(code=code, owner=user)
+            otpcode.save()
+            
+            # Send OTP code 
+            #TODO Send to phone_number
+            print(phone_number)
+            print(otpcode)
+
+
+            return HttpResponseRedirect(reverse("accounts:verify-phonenumber"))
 
 
     code = random.randint(100000, 999999)
@@ -173,7 +188,6 @@ def verify_phonenumber(request):
     print(otpcode)
 
     return render(request, "accounts/verifyphonenumber.html")
-
 
 def login_view(request):
     # Redirects to mfa view passing in 1 as an argument to 
@@ -290,6 +304,8 @@ def mfa(request, level):
 
     if level == 1:
         # Serve the Email/Password form
+
+
         return render(request, "accounts/mfaone.html")
     if level == 2:
         '''
@@ -329,7 +345,6 @@ def mfa(request, level):
         # Serve form to get the OTPcode from the user 
         return render(request, "accounts/mfathree.html")
 
-
 def logout_view(request):
     '''
     Log authenticated user out and redirect to journal index page
@@ -341,6 +356,54 @@ def logout_view(request):
 
     # Redirect to journal index page
     return HttpResponseRedirect(reverse("journal:index"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
