@@ -167,6 +167,7 @@ def verify_phonenumber(request):
             
             # Send OTP code 
             #TODO Send to phone_number
+            
             print(phone_number)
             print(otpcode)
 
