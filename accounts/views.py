@@ -130,9 +130,10 @@ def verify_phonenumber(request):
             # Get User's Profile
             userprofile = UserProfile.objects.get(user=user)
 
-            # Set phone number and phone_number_verified to True
+            # Set phone number, phone_number_verified to True and mfa_on to True
             userprofile.phone_number = phone_number
             userprofile.phone_number_verified = True
+            userprofile.mfa_on = True
             userprofile.save()
 
             # Delete pk and phone_number from sessions
@@ -144,6 +145,8 @@ def verify_phonenumber(request):
             # Delete OTPCode from db
             used_code = OTPCode.objects.get(code=otp_code, owner=user)    
             used_code.delete()
+
+
 
             # Log user in
             login(request, user)
@@ -219,9 +222,15 @@ def mfa(request, level):
 
             # If the user email and password checks out
             if user:
+                
                 # Get user and save the user's id in session 
                 user = User.objects.get(email = email)
                 request.session['tupk'] = user.pk
+                # If user hasn't set up MFA, redirect them back to setmfa
+                userprofile = UserProfile.objects.get(user=user)
+                print(userprofile.mfa_on)
+                if userprofile.mfa_on == False:
+                    return HttpResponseRedirect(reverse("accounts:setmfa"))
 
                 # Redirect to the second level of mfa
                 return HttpResponseRedirect(reverse("accounts:mfa", args=(2,),))
