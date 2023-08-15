@@ -1,7 +1,8 @@
 db.sqlite3
 
-__pycache__
+accounts/__pycache__/
+journal/__pycache__/
 
 migrations
 
-env/
+venv/
