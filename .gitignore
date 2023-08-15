@@ -1,8 +1,5 @@
 db.sqlite3
-
 accounts/__pycache__/
 journal/__pycache__/
-
-migrations
-
 venv/
+migrations/
