@@ -1,7 +1,9 @@
 from django.shortcuts import render
 
+from accounts.mfa_manager import get_key_from_uri, get_otp, make_qrcode_from_uri, make_uri, verify_otp
+
 from .models import User, UserProfile, OTPCode
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from .forms import SignUpForm, SetUpMFAForm
@@ -12,8 +14,18 @@ import random
 
 def profile(request):
     '''  Returns the authenticated user's profile page  '''
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("accounts:login"))
+    
+    # Get auth'd user and their profile
+    user = request.user
+    userprofile = UserProfile.objects.get(user=user)
 
-    return render(request, "accounts/profile.html")
+    return render(request, "accounts/profile.html", 
+            {
+                "user": user, 
+                "profile": userprofile
+            })
 
 def signup(request):
     '''
@@ -76,21 +88,23 @@ def setmfa(request):
             # Get the MFA data from the submitted form data
             question = setupmfaform.cleaned_data['recovery_question']
             answer = setupmfaform.cleaned_data['recovery_answer']
-            phone_number = setupmfaform.cleaned_data['phone_number']
 
             # Set these data for the user
             profile.recovery_question = question
             profile.recovery_answer = answer
+            profile.security_code_uri = make_uri(name=user.email)[0]
+
+            print(profile.security_code_uri)
+
 
             # Save profile
             profile.save()
 
-            # Save phone_number and user_id in sessions
-            request.session['phone_number'] = str(phone_number)
+            # Save user_id in sessions
             request.session['tupk'] = pk
             
             # Redirect to verify phone number page
-            return HttpResponseRedirect(reverse("accounts:verify-phonenumber"))
+            return HttpResponseRedirect(reverse("accounts:verify-withOTP"))
         
         else:
             # Users are redirected back to restart the MFA setup process
@@ -104,94 +118,71 @@ def setmfa(request):
     setupmfaform = SetUpMFAForm()
     return render(request, 'accounts/setmfa.html', {'form':setupmfaform})
 
-def verify_phonenumber(request):
+def verify_withOTP(request):
     '''
     Users get this view to verify the phonenumber they submitted 
     upon setting up mfa after signup.
     '''
     # Get the user_id and phonenumber for the session
     user_pk = request.session["tupk"]
-    phone_number = request.session["phone_number"]
     
     if request.method == "POST":
         # Get submitted OTP
         otp_code = request.POST['otp']
         
-        # Get user
+        # Get user and profile
         user = User.objects.get(pk=user_pk)
+        userprofile = UserProfile.objects.get(user=user)    
+    
+        # Get user's current security_code_uri and security_code_counter form the user profile(0, uri)
+        uri = userprofile.security_code_uri
+        counter = userprofile.security_code_counter
+        
+        # Get key from uri
+        key = get_key_from_uri(uri)
 
-        # Check if there exists an OTPcode in the database with this code and this user
-        if OTPCode.objects.filter(code=otp_code, owner=user).exists():
-            '''
-            If the code exists for this user...
-            Clean up pk from session, delete otpcode from db 
-            then log user in
-            '''
-            # Get User's Profile
-            userprofile = UserProfile.objects.get(user=user)
+        # Check if the OTP is correct at that counter(0)
+        if not verify_otp(key, otp_code, counter):
+            # if it is wrong, redirect back to the verify-withOTP page where a new qrcode is generated
+            return HttpResponseRedirect(reverse("accounts:verify-withOTP"))
+        
+        # If the OTP is correct, increment the security_code_counter by one,
+        # set mfa_on to true and log user in        
+        userprofile.security_code_counter += userprofile.security_code_counter
+        userprofile.mfa_on = True
+        userprofile.save()
 
-            # Set phone number, phone_number_verified to True and mfa_on to True
-            userprofile.phone_number = phone_number
-            userprofile.phone_number_verified = True
-            userprofile.mfa_on = True
-            userprofile.save()
+        # Delete pk and phone_number from sessions
+        if request.session['tupk']:
+            del request.session['tupk']
 
-            # Delete pk and phone_number from sessions
-            if request.session['tupk']:
-                del request.session['tupk']
-            if request.session['phone_number']:
-                del request.session['phone_number']
+        
+        # Log user in
+        login(request, user)
 
-            # Delete OTPCode from db
-            used_code = OTPCode.objects.get(code=otp_code, owner=user)    
-            used_code.delete()
-
-
-
-            # Log user in
-            login(request, user)
-
-            #Redirect to home page
-            return HttpResponseRedirect(reverse("journal:home"))
-        else:
-            user = User.objects.get(pk=user_pk)
+        #Redirect to home page
+        return HttpResponseRedirect(reverse("journal:home"))
             
-            # Get all OTPs for the user and delete them 
-            usersOTPs =  OTPCode.objects.filter(owner=user)
-
-            for code in usersOTPs:
-                code.delete()
-
-            code = random.randint(100000, 999999)
-
-            # Create a OTPcode with this user as the user as the owner and save in database
-            otpcode = OTPCode.objects.create(code=code, owner=user)
-            otpcode.save()
-            
-            # Send OTP code 
-            #TODO Send to phone_number
-            
-            print(phone_number)
-            print(otpcode)
-
-
-            return HttpResponseRedirect(reverse("accounts:verify-phonenumber"))
-
-
-    code = random.randint(100000, 999999)
     
     user = User.objects.get(pk=user_pk)
+    userprofile = UserProfile.objects.get(user=user)
 
-    # Create a OTPcode with this user as the user as the owner and save in database
-    otpcode = OTPCode.objects.create(code=code, owner=user)
-    otpcode.save()
+    # Make a qrcode with the user's uri, display it and request OTP
+    print(userprofile.security_code_uri)
+
+    # Creates a qrcode for this user and returns a (status, qrcode_path) tuple
+    code_created = make_qrcode_from_uri(uri=userprofile.security_code_uri, filename=user.email)
     
-    # Send OTP code 
-    #TODO Send to phone_number
-    print(phone_number)
-    print(otpcode)
+    # Redirects to setmfa if the status is False(qrcode wasn't created succefully)
+    if not code_created[0]:
+        HttpResponseRedirect(reverse("accounts:setmfa"))
 
-    return render(request, "accounts/verifyphonenumber.html")
+    
+    key= get_key_from_uri(userprofile.security_code_uri)
+    counter = userprofile.security_code_counter
+    print(get_otp(key, counter))
+
+    return render(request, "accounts/verifywithOTP.html", {'user': user})
 
 def login_view(request):
     # Redirects to mfa view passing in 1 as an argument to 
@@ -228,7 +219,7 @@ def mfa(request, level):
                 request.session['tupk'] = user.pk
                 # If user hasn't set up MFA, redirect them back to setmfa
                 userprofile = UserProfile.objects.get(user=user)
-                print(userprofile.mfa_on)
+                
                 if userprofile.mfa_on == False:
                     return HttpResponseRedirect(reverse("accounts:setmfa"))
 
@@ -268,8 +259,9 @@ def mfa(request, level):
             
         if level == "3":
             '''
-            Check if the OTP is correct  ---> if correct, 
+            Verify OTP is correct  ---> if correct, 
             log user in and redirect to journal's home page
+            if not restart mfa process
             '''
             # Get returned recovery question's answer 
             otp_code = request.POST["otp"]
@@ -278,21 +270,30 @@ def mfa(request, level):
             pk = request.session['tupk']
             user = User.objects.get(pk=pk)
 
-            # Check if there exists an OTPcode in the database with this code and this user
-            if OTPCode.objects.filter(code=otp_code, owner=user).exists():
+            profile = UserProfile.objects.get(user=user)
+
+            # Get user's current security_code_uri and security_code_counter form the user profile(0, uri)
+            uri = profile.security_code_uri
+            counter = profile.security_code_counter
+            
+            # Get key from uri
+            key = get_key_from_uri(uri)
+
+            # Verify OTP
+            if verify_otp(key=key, code=otp_code, counter=counter):
                 '''
-                If the code exists for this user...
-                Clean up pk from session, delete otpcode from db 
-                then log user in
+                If code verification returns Truety ...
+                Clean up pk from session then log user in
+                
                 '''
 
                 #TODO Delete pk from sessions
                 if request.session['tupk']:
                     del request.session['tupk']
 
-                # Delete OTPCode from db
-                used_code = OTPCode.objects.get(code=otp_code, owner=user)    
-                used_code.delete()
+                # Increment the user's security_code_counter by one and save
+                profile.security_code_counter += 1
+                profile.save()
 
 
                 # Log user in
@@ -302,10 +303,6 @@ def mfa(request, level):
                 return HttpResponseRedirect(reverse("journal:home"))
 
             else:
-                # If the code provided doesn't checkout(isn't in the database)
-
-                #TODO Delete pk from 
-
                 # Redirect user to the login_view to restart the MFA 
                 # process from level one
                 return HttpResponseRedirect(reverse("accounts:login_view"))
@@ -314,8 +311,6 @@ def mfa(request, level):
 
     if level == 1:
         # Serve the Email/Password form
-
-
         return render(request, "accounts/mfaone.html")
     if level == 2:
         '''
@@ -332,24 +327,22 @@ def mfa(request, level):
         return render(request, "accounts/mfatwo.html", {'question': recovery_question}) 
     if level == 3:
         ''' 
-        Send an OTP to the user's phone number then serve 
-        a simple form to get the OTP back
+        Serve a simple form to get OTP 
         '''
         
-        # Generate a random 6 digit code 
-        code = random.randint(100000, 999999)
 
         # Get the user for the session
         user_id = request.session['tupk']
         user = User.objects.get(pk=user_id)
+        profile = UserProfile.objects.get(user=user)
 
-        # Create a OTPcode with this user as the user as the owner and save in database
-        otpcode = OTPCode.objects.create(code=code, owner=user)
-        otpcode.save()
+        uri = profile.security_code_uri
+        counter = profile.security_code_counter
 
-        # TODO Send OTPcode to user's phone number
-        # For now(before integrating Twillo we'll print the code
-        print(code)
+        key = get_key_from_uri(uri=uri)
+
+        # Print OTP
+        print(get_otp(key, counter))
 
 
         # Serve form to get the OTPcode from the user 
