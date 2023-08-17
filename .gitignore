@@ -1,5 +1,7 @@
 db.sqlite3
 accounts/__pycache__/
 journal/__pycache__/
+mindstream/__pycache__/
 venv/
 migrations/
+twilio_save.py
