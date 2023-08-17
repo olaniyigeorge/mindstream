@@ -6,6 +6,7 @@ async-timeout==4.0.2
 attrs==23.1.0
 certifi==2023.7.22
 charset-normalizer==3.2.0
+colorama==0.4.6
 dj-database-url==2.0.0
 Django==4.2.3
 django-environ==0.10.0
@@ -18,7 +19,10 @@ packaging==23.1
 phonenumbers==8.13.16
 psycopg2-binary==2.9.6
 PyJWT==2.8.0
+pyotp==2.9.0
+pypng==0.20220715.0
 pytz==2023.3
+qrcode==7.4.2
 requests==2.31.0
 sqlparse==0.4.4
 twilio==8.5.0
