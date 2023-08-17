@@ -18,7 +18,9 @@
                 </div>
                 
                 <div class="underline text-xs font-medium font-[poppins]">
-                    {{ user.email}}
+                    <a href="{% url 'accounts:profile' %}">
+                        {{ user.email}} 
+                    </a>
                 </div>
                 
                 <div class="text-sm md:text-md rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
