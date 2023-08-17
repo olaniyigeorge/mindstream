@@ -1,18 +1,39 @@
 {% extends 'journal/base.html' %}
 
+{% load static %}
+
 {% block title %}
     Profile
 {% endblock%}
 
 
 
-{% block body %}
-
+{% block content %}
     <!-- 
         The user profile page
-        
     -->
+    <div class="flex justify-center items-center">
+        <div class="mx-auto shadow-lg w-3/4  mt-3">
+            <div class="flex justify-center items-center">
+                <h1 class=" text-mindpurple  text-lg md:text-3xl  font-medium">{{user.email}}</h1>
+            </div>
+            
+            <div class="flex justify-center items-center ">
+                <img class="h-60 md:h-80 w-60 md:w-80" src="{% static 'images/qrcodes/'|add:user.email|add:'.png' %}" alt="your qrcode" >
+            </div>
 
-    <h1> This Is The User Profile Page </h1>
+            <!-- <div class="h-40 w-40">
+                <img src="{% static 'images/qrcodes/{{user.email}}.png' %}" alt="your qrcode" >
+            </div> -->
+
+            
+        </div>
+    </div>
+    
+
+
+
     
 {% endblock%}
+
+
