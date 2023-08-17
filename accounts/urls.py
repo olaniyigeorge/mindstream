@@ -9,11 +9,12 @@ urlpatterns = [
     path('signup', views.signup, name='signup'),
     path('setmfa', views.setmfa, name='setmfa'),
 
-    path('verify-phonenumber', views.verify_phonenumber, name="verify-phonenumber"),
+    path('verify-withOTP', views.verify_withOTP, name="verify-withOTP"),
 
     path('login', views.login_view, name='login_view'), # Only redirects to the first level of the mfa view
     path('mfa/<int:level>', views.mfa, name='mfa'),
-    path('logout', views.logout_view, name='logout_view')
+    path('logout', views.logout_view, name='logout_view'),
+    
     
     # path('editprofile', views.editprofile, name='editprofile'),
 
