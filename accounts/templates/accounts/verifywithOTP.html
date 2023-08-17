@@ -1,0 +1,52 @@
+{% extends 'journal/base.html' %}
+
+{% load static %}
+
+{% block title %}
+     MFA 3  
+{% endblock%}
+
+
+
+{% block content %}
+<div class="flex justify-center items-center mt-5 ">
+    <div class="space-y-5 w-2/3 shadow shadow-mindpurple p-4 m-5 rounded-lg">
+        <h2 class="bg-red-200 p-2 mx-auto underline w-2/3 text-center text-lg sm:text-2xl font-medium rounded-lg text-mindpurple font-[poppins]">
+            Scan the QR code and verify with OTP
+        </h2>
+
+        <hr class="border-mindpurple"> 
+        
+        <div class="flex justify-center items-center ">
+            <img class="h-60 md:h-80 w-60 md:w-80" src="{% static 'images/qrcodes/'|add:user.email|add:'.png' %}" alt="your qrcode" >
+        </div>
+
+        <!-- 
+                OTP form to test the possession factor
+                of the authentication system 
+        -->
+        <form class=" border-mindpurple space-y-4 " action="{% url 'accounts:verify-withOTP' %}" method="POST">
+            {% csrf_token %}
+
+            <div class="mx-auto space-y-1 w-2/3">
+                <label class="mx-auto text-mindtextmetal font-medium" for="otp">Verify with OTP </label>
+                <input class="w-full p-2 shadow-md rounded-lg focus:outline-mindpurple" type="text" name="otp" placeholder="OTP code">
+            </div>
+            
+            <div>
+                <input type="hidden" name="level" value="3">
+            </div>
+
+            <div class="mx-auto  w-2/3">
+                <input class="w-full p-2 rounded-lg shadow-lg bg-mindpurple font-medium text-white hover:outline-2 hover:outline-mindpurple hover:font-bold" type="submit" value="Verify OTP">
+            </div>
+        
+        </form>
+
+    </div>
+</div>
+    
+    
+    
+    
+{% endblock%}
