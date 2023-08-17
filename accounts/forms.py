@@ -22,4 +22,4 @@ class SetUpMFAForm(forms.ModelForm):
     '''
     class Meta:
         model = UserProfile
-        fields =['phone_number', 'recovery_question', 'recovery_answer']
+        fields =['recovery_question', 'recovery_answer']
