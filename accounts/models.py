@@ -36,6 +36,8 @@ class UserProfile(models.Model):
     
     # MFA Security
     mfa_on = models.BooleanField(default=False)
+    security_code_uri = models.CharField(max_length=150, blank=True, null=True)
+    security_code_counter = models.IntegerField(default=0)
     
     recovery_question = models.CharField(max_length=255)
     recovery_answer = models.CharField(max_length=30)
@@ -54,7 +56,29 @@ class OTPCode(models.Model):
     def send_code(self):
         pass
 
-    
+    # def save(self, *args, **kwargs):
+    #     account_sid = 'AC605add792b30fbb291ce5699e84854d7'
+    #     auth_token = '45b66a19ccf83ff52aec6a3bceee06a6'
+
+    #     client = Client(account_sid, auth_token)
+
+    #     validation_request = client.validation_requests \
+    #                     .create(
+    #                             friendly_name=f'User{self.owner.pk}',
+    #                             phone_number=f"{self.owner.profile.phone_number}"
+    #                         )
+
+    #     print(validation_request.friendly_name)
+
+    #     message = client.messages.create(
+    #         body= f"MINDSTREAM: Verification code for {self.owner.email} your journal {self.code}",
+    #         from_="+12187182316",
+    #         to= f"{self.owner.profile.phone_number}"
+    #     )
+
+    #     print(message.sid)
+
+    #     return super().save(*args, **kwargs)
 
 
 
