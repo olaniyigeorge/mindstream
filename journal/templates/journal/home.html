@@ -17,13 +17,13 @@
                     Today - {{ today_datetime }}
                 </div>
                 
-                <div class="underline text-xs font-medium font-[poppins]">
+                <div class="underline text-xs md:text-md font-medium font-[poppins]">
                     <a href="{% url 'accounts:profile' %}">
                         {{ user.email}} 
                     </a>
                 </div>
                 
-                <div class="text-sm md:text-md rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
+                <div class="text-xs md:text-md rounded-lg font-medium text-white font-[poppins] bg-mindpurple p-1 sm:p-2">
                     <a href="{% url 'journal:create_entry' %}"> Add Entry </a>
                 </div>
                 
@@ -32,14 +32,14 @@
 
             <div class="px-2 font-[poppins] mb96 mt-5">
                 <!-- 
-                    A list of entries from the past week is displayed starting with the most recent
+                    A list of entries from today is displayed starting with the most recent
                 -->
                     {% for entry in entries %}
                         <div>
-                            <div class="italic text-mindpurple">
+                            <div class="italic text-sm md:text-md text-mindpurple">
                                 {{ entry.created_at }}
                             </div>
-                            <div>
+                            <div class="text-sm md:text-lg">
                                 {{ entry.text }}
                             </div>
                         </div>
@@ -68,9 +68,9 @@
             <form class="flex space-x-3 " action="{% url 'journal:search-archive'  %}" method="POST">
                 {% csrf_token %}                    
                     
-                <input class="bg-transparent text-sm md:text-md font-[poppins] p-1 rounded-md border border-mindpurple focus:outline-white " required type="date" name="date">
+                <input class="bg-transparent text-xs md:text-md font-[poppins] p-1 rounded-md border border-mindpurple focus:outline-white " required type="date" name="date">
                     
-                <input class="bg-mindpurple px-2 text-white rounded-md font-[poppins] focus:ouline-white" type="submit" value="Go to Date">
+                <input class="text-xs md:text-md bg-mindpurple px-2 text-white rounded-md font-[poppins] focus:ouline-white" type="submit" value="Go to Date">
             </form>
         </div>
 
