@@ -27,7 +27,7 @@ environ.Env.read_env()
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lx1o2eubotnrbpwr1*$l4bm!-@-u&qwy%#jk0=m6_00!7ow_@8'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -86,6 +86,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mindstream.wsgi.application'
+
+
+
 
 
 # Database
