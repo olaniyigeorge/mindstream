@@ -13,7 +13,8 @@ Built with the Django web framework, Mindstream also uses a 3-layer Multi Factor
 
 - Password Layer(knowledge factor): Users are required to input their password every time they attempt logging into their journal.
 - Recovery Question Layer(inherent factor): After passing the first layer, users are redirected to this layer to provide the answer to a recovery question they picked upon registeration.
-- One Time Password(OTP) Layer(Possession Factor): Upon passing the second layer, an OTP code is sent to the user's mobile number(which they must have provided on signup). Users are required to input the exact code to finally gain access into their account.
+- One Time Password(OTP) Layer(Possession Factor): Upon passing the second layer,users are redirected to the finaly layer of authentication. On sign up, a QR code is generated and displayed for the user to scan with an authentication app(e.g Google Authenticator, Authy etc). Users are required to input the OTP code displayed in the authentication app to complete the sign up process and on sebsequent log ins, users are required to refresh the OTP code in the authentication app and use the new OTP to gain acces to their account. 
+
 
 This security system is to demostrate the use of a MFA security system to avoid data leakage, the importance/strengths of this system in securing sensitive data(in this case personal information) and of course, its weaknesses. 
 
