@@ -1,23 +1,5 @@
 import pyotp
-import random
 import qrcode 
-
-#TODO Rewrite to use Class CustomThreeLayerMFA() which takes in a user, saves the layer reached 
-# and when last MFA was tried, is_valid to verify if user has passed the three layers and the 
-#various layers as methods
-
-
-class CustomeThreeLayerMFA():
-
-    def is_valid(self):
-        pass
-
-    def recovery_question_layer(self):
-        pass
-
-    def OTP_layer(self):
-        pass
-
 
 
 
@@ -33,7 +15,7 @@ def make_uri(name, key=pyotp.random_base32()):
         issuer_name="Mindstream Journal"
     )
 
-    print(uri)
+    # print(uri)
     
 
     return (uri, key)
@@ -44,16 +26,15 @@ def make_qrcode_from_uri(uri, filename):
     try:
         qr= qrcode.make(uri)
         qr.save(f"{qrcodes_save_path}{filename}.png")
-        status = True
+        return True
     except:
         #raise ValueError("Couldn't make or save qrcode")
-        status = False
+        return False
     
-    filepath= f"{qrcodes_save_path}{filename}.png"
-    print(f"QRcode created in '{filepath}'")
+    # filepath= f"{qrcodes_save_path}{filename}.png"
+    # print(f"QRcode created in '{filepath}'")
     
-    return (status, filepath)
-
+    
 
 def get_key_from_uri(uri):
     for x in uri:
@@ -63,10 +44,25 @@ def get_key_from_uri(uri):
         
 
 
-def verify_otp(key, code, counter):
+def verify_otp(key, code, counter, error_margin=6):
+    '''
+    This function verifies that the otp provided is correct.
+    There is a catch tho. It has a margin of error for cases where users have 
+    mistakenly refreshed the generated otp.
+    THIS FUCNTION WILL RETURN TRUE ONLY IF THE USER HASN'T MISTAKENLY REFRESHED AN 
+    UNUSED OTP CODE MORE THAN SIX TIMES(30SEC0NDS)  '''
     hotp = pyotp.HOTP(key)
     
-    return hotp.verify(code, counter=counter)
+    
+    options = []
+    count = counter
+    for x in range(error_margin):
+        option = hotp.at(count+x)
+        options.append(option)
+        print(option)
+
+    return code in options
+    #return hotp.verify(code, counter=counter)
 
 
 
@@ -75,6 +71,6 @@ def get_otp(key, counter):
 
     hotp = pyotp.HOTP(key)
 
-    otp = print(f"OTP at {counter}: {hotp.at(int(counter))}")
+    otp = f"OTP at {counter}: {hotp.at(int(counter))}"
     
     return otp
