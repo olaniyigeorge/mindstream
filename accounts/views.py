@@ -44,7 +44,7 @@ def signup(request):
             # USERPROFILE(with all fields set to the default value) FOR THE USER
             user.save()
 
-            # Try(in a case where fr some reason the user isnt created) to get the user ID
+            # Try(in a case where frr some reason the user isnt created) to get the user ID
             try:
                 submitted_email = form.cleaned_data.get('email')
                 thisuser = User.objects.get(email = submitted_email)
@@ -61,7 +61,6 @@ def signup(request):
             return render(request, "accounts/signup.html", {
                                     'form': form,
                                     'message': 'Form not valid'})
-
     # Serve the specially build signup form in forms.py
     signupform = SignUpForm()
     return render(request, 'accounts/signup.html', {'form': signupform})
@@ -165,21 +164,21 @@ def verify_withOTP(request):
             
     
     user = User.objects.get(pk=user_pk)
-    userprofile = UserProfile.objects.get(user=user)
+    profile = UserProfile.objects.get(user=user)
 
     # Make a qrcode with the user's uri, display it and request OTP
-    print(userprofile.security_code_uri)
+    print(profile.security_code_uri)
 
     # Creates a qrcode for this user and returns a (status, qrcode_path) tuple
-    code_created = make_qrcode_from_uri(uri=userprofile.security_code_uri, filename=user.email)
+    code_created = make_qrcode_from_uri(uri=profile.security_code_uri, filename=user.email)
     
     # Redirects to setmfa if the status is False(qrcode wasn't created succefully)
     if not code_created:
         HttpResponseRedirect(reverse("accounts:setmfa"))
 
     
-    key= get_key_from_uri(userprofile.security_code_uri)
-    counter = userprofile.security_code_counter
+    key= get_key_from_uri(profile.security_code_uri)
+    counter = profile.security_code_counter
     print(get_otp(key, counter))
 
     return render(request, "accounts/verifywithOTP.html", {'user': user})
@@ -204,6 +203,9 @@ def mfa(request, level):
         level = request.POST['level']
 
         if level == "1":
+            '''
+            Layer One of the MFA process
+            '''
             # Get returned email and password
             email = request.POST["email"]
             password = request.POST["password"]
@@ -213,7 +215,6 @@ def mfa(request, level):
 
             # If the user email and password checks out
             if user:
-                
                 # Get user and save the user's id in session 
                 user = User.objects.get(email = email)
                 request.session['tupk'] = user.pk
@@ -232,8 +233,9 @@ def mfa(request, level):
         
         if level == "2":
             '''
-            Check if the recovery answer is correct  ---> 
-            if correct, redirect to the third level
+            Second layer of the MFA process  ----> Check the recovery answer against the one previously
+            provided stored in database.
+            If its correct, redirect to the third level
             '''
             # Get returned recovery question's answer 
             answer = request.POST["recovery_answer"]
@@ -259,9 +261,9 @@ def mfa(request, level):
             
         if level == "3":
             '''
-            Verify OTP is correct  ---> if correct, 
-            log user in and redirect to journal's home page
-            if not restart mfa process
+            Third layer of the MFA process
+            Verify OTP is correct  ---> if correct, log user in and redirect to journal's home page.
+            If not restart mfa process
             '''
             # Get returned recovery question's answer 
             otp_code = request.POST["otp"]
@@ -286,7 +288,6 @@ def mfa(request, level):
                 Clean up pk from session then log user in
                 
                 '''
-
                 #TODO Delete pk from sessions
                 if request.session['tupk']:
                     del request.session['tupk']
@@ -294,7 +295,6 @@ def mfa(request, level):
                 # Increment the user's security_code_counter by one and save
                 profile.security_code_counter += 1
                 profile.save()
-
 
                 # Log user in
                 login(request, user)
