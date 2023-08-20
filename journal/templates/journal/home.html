@@ -61,20 +61,25 @@
                 <!--
                     Input Date Form
                 -->
-                <form class="flex space-x-3 " action="{% url 'journal:search-archive'  %}" method="POST">
-                    {% csrf_token %}                    
-                        
-                    <input class="bg-transparent text-xs md:text-md font-[poppins] p-1 rounded-md border border-mindpurple focus:outline-white " required type="date" name="date">
-                        
-                    <input class="text-xs md:text-md bg-mindpurple px-2 text-white rounded-md font-[poppins] focus:ouline-white" type="submit" value="Go to Date">
-                </form>
+                <div>
+                    <form class="flex space-x-3 " action="{% url 'journal:search-archive'  %}" method="POST">
+                        {% csrf_token %}                    
+                            
+                        <input class="bg-transparent text-xs md:text-md font-[poppins] p-1 rounded-md border border-mindpurple focus:outline-white " required type="date" name="date">
+                            
+                        <input class="text-xs md:text-md bg-mindpurple px-2 text-white rounded-md font-[poppins] focus:ouline-white" type="submit" value="Go to Date">
+                    </form>
+
+                    <div class="underline text-xs md:text-md font-medium font-[poppins]">
+                        <a href="{% url 'accounts:profile' %}">
+                            {{ user.email}} 
+                        </a>
+                    </div>
+                </div>
+                
             </div>
 
-            <div class="underline text-xs md:text-md font-medium font-[poppins]">
-                <a href="{% url 'accounts:profile' %}">
-                    {{ user.email}} 
-                </a>
-            </div>
+            
         </div>
         
 
