@@ -13,7 +13,7 @@
 
         <div class="w-full space-y-5 borderborder-mindpurple ">
             <div class="flex bg-red-200 justify-between items-center text-mindpurple font-medium py-2 sm:py-4 px-2 border-b-2 rounded-t-md border-mindpurple">
-                <div class="text-sm md:text-md rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
+                <div class="text-xs md:text-sm md:text-md rounded-lg border-2 border-mindpurple font-medium font-[poppins] bg-white p-1 sm:p-2">
                     Today - {{ today_datetime }}
                 </div>
                 
@@ -48,7 +48,7 @@
                             <div  >
                                 <p class="text-center"> You haven't added an entry today 
                                     <br>
-                                    <span class="italic text-mindpurple">What's on your mind?</span>
+                                    <a href="{% url 'journal:create_entry' %}"> <span class="italic underline text-mindpurple">What's on your mind?</span></a>
                                 </p>
                                 
                             </div> 
