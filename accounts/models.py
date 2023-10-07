@@ -8,9 +8,9 @@ from accounts.managers import UserManager
 
 from phonenumber_field.modelfields import PhoneNumberField
 
+from twilio.rest import Client
+
 # Create your models here.
-
-
 
 class User(AbstractUser):
     username = None # remove username field, we will use email as unique identifier
@@ -28,8 +28,6 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.email}"
 
-
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     #display_name = models.CharField(max_length=25, null=True, blank=True)
@@ -37,8 +35,7 @@ class UserProfile(models.Model):
     phone_number_verified = models.BooleanField(default=False, blank=True, null=True)
     
     # MFA Security
-    #TODO List a set of predetermined recovery questions and change recovery_question field to TextChoice field
-    mfa_on = models.BooleanField(default=True)
+    mfa_on = models.BooleanField(default=False)
     
     recovery_question = models.CharField(max_length=255)
     recovery_answer = models.CharField(max_length=30)
@@ -46,10 +43,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.email}"
     
-    
-
-
-
 class OTPCode(models.Model):
     # TODO Read up on how long it takes to guess/break a four digit code vs a six digit code
     code = models.CharField(max_length=6, null=False, blank=False)
@@ -60,6 +53,8 @@ class OTPCode(models.Model):
     
     def send_code(self):
         pass
+
+    
 
 
 
