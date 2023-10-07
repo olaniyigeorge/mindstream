@@ -9,7 +9,7 @@ Mindstream includes features like;
 - Multi Factor Authentication: This further secures user account and data from data leakage and bad actors by utilising the three factors of authentication; possession, knowledge and inherent factors.
 
 ### **MFA Security**
-Built with the Django web framework, Mindstream also uses a 3-layer Multi Factor Authentication system built in to ensure user account security and data leakage. This method utilizes the three factors of authentication; possession(OTP), knowledge(password) and inherent factors(recovery question).
+Built with the Django web framework, Mindstream also uses a 3-layer Multi Factor Authentication system built in to ensure user account security and prevent data leakage. This method utilizes the three factors of authentication; possession(OTP), knowledge(password) and inherent factors(recovery question).
 
 - Password Layer(knowledge factor): Users are required to input their password every time they attempt logging into their journal.
 - Recovery Question Layer(inherent factor): After passing the first layer, users are redirected to this layer to provide the answer to a recovery question they picked upon registeration.
